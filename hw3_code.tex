@@ -1,0 +1,47 @@
+\documentclass[a4paper,oneside]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+\usepackage[margin=2.54cm]{geometry}
+%\usepackage{amsmath}
+%\usepackage{siunitx}
+%\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{textcomp}
+%\usepackage{graphicx}
+\usepackage{pgffor}
+
+\definecolor{matlabgreen}{RGB}{28,172,0}
+\definecolor{matlablilas}{RGB}{170,55,241}
+
+\newcommand{\includecode}[1]{\lstinputlisting[caption={\ttfamily #1.m},label={lst:#1}]{matlab/#1.m}}
+
+\author{Enrico Polo \and Riccardo Zanol}
+\title{Homework 3 \\
+  Matlab code}
+
+\begin{document}
+\lstset{
+  language=Matlab,
+  basicstyle={\ttfamily \footnotesize},
+  breaklines=true,
+  morekeywords={true,false,warning,xlim,ylim},
+  keywordstyle=\color{blue},
+  stringstyle=\color{matlablilas},
+  commentstyle={\color{matlabgreen} \itshape},
+  numberstyle={\ttfamily \tiny},
+  frame=leftline,
+  showstringspaces=false,
+  numbers=left,
+  upquote=true,
+}
+\maketitle
+\begingroup
+\catcode`\_=12
+\foreach \i in {} {
+  \includecode{\i}
+}
+\endgroup
+\end{document}

@@ -1,0 +1,8 @@
+hw*.pdf
+*.aux
+*.out
+*.log
+matlab/*.asv
+matlab/*.eps
+matlab/*.pdf
+*.bak
