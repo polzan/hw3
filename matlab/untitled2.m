@@ -16,7 +16,7 @@ f = linspace(0,2/T,1000);
 %modulator
 D = 13;
 L = 4095;
-PN = pn_seq(L,1,D);        %must be even length for the following line
+PN = rand(1,3000)>0.5;  %pn_seq(L,1,D);        %must be even length for the following line
 QPSK_mod = comm.QPSKModulator('BitInput',true);     %bit grey coded
 a_k = step(QPSK_mod,PN');
 a_k = upsample(a_k,up_factor);
@@ -25,22 +25,22 @@ a_k = upsample(a_k,up_factor);
 %compute additional params.
 SNR_target = 11;
 E_q = q.'*conj(q);      %energy of q
-sigma2_a = 1/sqrt(2)/up_factor;    %%%%%%%%%%%????????
+sigma2_a = 1/sqrt(2);%/up_factor;    %%%%%%%%%%%????????
 %%%%lesson 21/04??
-sigma2_omega = 10*log10(E_q*sigma2_a*up_factor) - SNR_target;       %sigma2 = Msc*Q0 - SNR in dB
+sigma2_omega = 10*log10(E_q*sigma2_a) - SNR_target;       %sigma2 = Msc*Q0 - SNR in dB
 sigma2_omega = 10^(sigma2_omega/10);            %%%linear noise power
 N0 = sigma2_omega*T_4;
 omega = sqrt(sigma2_omega).*(randn(length(a_k)+length(q)-1,1) + 1j*(randn(length(a_k)+length(q)-1,1)));
 
 %rc signal
-r_c = conv(a_k,q);% + omega;
+r_c = conv(a_k,q) + omega;
 
 
 %match filter
-M1 = 16;        %at least 12
+M1 = 19;        %at least 12
 q_match = fliplr(q(1:M1)');  %already shifted
 r_r = conv(r_c,q_match);
-to = 16;  %%%%%%dal grafico di r_qc??? = E_q??(8.24) real t0= M1??
+to = 19;  %%%%%%dal grafico di r_qc??? = E_q??(8.24) real t0= M1??
 r_sampled = zeros(1,length(a_k)/4);
 for i = 1:length(a_k)/4      %%sampling in to+i*T
     r_sampled(1,i) = r_r(to+(i-1)*up_factor*T);
@@ -49,15 +49,19 @@ end
 %%%c estimation%%%
 r_qc = conv(q,q_match);      %%real t=14??
 
-r_qc = decimate(circhift(to,r_qc),4);
-
+r_qc = decimate(circshift(r_qc,length(r_qc)-to+1),4);
+r_qc = circshift(r_qc,length(r_qc)/2);
 R_QC = fft(r_qc);
-c = ifft(1./(4*R_QC));
+C = 1./R_QC;
+c = ifft(sigma2_a./(N0 + sigma2_a.*R_QC));
 received = conv(r_sampled,c);
 
-bit_est = QPSKdemodulator(received(1,length(c):length(received))); 
+%decoded bits
+bit_est = QPSKdemodulator(received(1,length(c):length(received)));    %with c
+bit_est2 = QPSKdemodulator(r_sampled);      %without c
 
-
+P_bit = length(find(bit_est - PN ~= 0))/length(PN)
+p_bit_no_c = length(find(bit_est2 -PN ~= 0))/length(PN)
 
 figure;
 subplot(1,3,1);
@@ -68,7 +72,17 @@ stem(0:length(q)-1, q);
 xlabel('nT'); ylabel('q_c(nT)');
 subplot(1,3,3)
 stem(0:length(q_match)-1, q_match);
-figure;
+
+%compares error with and without c (something wrong)
+figure(2);
+subplot(1,2,1)
 stem(bit_est-PN);
-figure;
+subplot(1,2,2)
+stem(bit_est2-PN);
+
+%interf before anf after c
+figure(3);
+subplot(1,2,1)
 stem(0:length(r_qc)-1,r_qc);
+subplot(1,2,2)
+stem(conv(c,r_qc))
