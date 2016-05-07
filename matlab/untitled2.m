@@ -61,8 +61,8 @@ received = conv(r_sampled,c);
 bit_est = QPSKdemodulator(received(1,length(c):length(received)));    %with c
 bit_est2 = QPSKdemodulator(r_sampled);      %without c
 
-P_bit = (length(find(bit_est - transpose(bits))) ~= 0)/length(bits)
-p_bit_no_c = length(find(bit_est2 - transpose(bits)) ~= 0)/length(bits)
+P_bit = (length(find(bit_est - bits)) ~= 0)/length(bits)
+p_bit_no_c = length(find(bit_est2 - bits) ~= 0)/length(bits)
 
 figure;
 subplot(1,3,1);
@@ -77,9 +77,9 @@ stem(0:length(q_match)-1, q_match);
 %compares error with and without c (something wrong)
 figure;
 subplot(1,2,1)
-stem(bit_est-bits');
+stem(bit_est-bits);
 subplot(1,2,2)
-stem(bit_est2-bits');
+stem(bit_est2-bits);
 
 %interf before anf after c
 figure;

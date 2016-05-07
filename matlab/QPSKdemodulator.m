@@ -1,7 +1,7 @@
 function [ a ] = QPSKdemodulator(data)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
-a = zeros(1,2*length(data));
+a = zeros(2*length(data),1);
 v = 0;
 for i = 1:length(data)
     if real(data(i)) > 0 && imag(data(i)) > 0
