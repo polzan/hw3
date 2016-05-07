@@ -12,7 +12,7 @@ Q_c_den = [1, -0.67];     %1-alfa
 
 q_c = impz(Q_c_num, Q_c_den, 32);
 
-[Q_f_plot, f_plot] = freqz(Q_c_num, Q_c_den, 1000, 1/(2*T_Q));
+[Q_f_plot, f_plot] = freqz(Q_c_num, Q_c_den, 1000, 1/T_Q);
 
 %modulator
 Nbits = 1e4;
@@ -94,14 +94,18 @@ P_bit = err_count1 / length(bit_est);
 p_bit_no_c = err_count2 / length(bit_est2);
 fprintf('Pbit = %f, %f (no C)\n', P_bit, p_bit_no_c);
 
+
 figure;
-subplot(1,3,1);
-plot(f_plot, 20*log10(abs(Q_f_plot)));    %2/T but qc works T/4 >> plot half a period
-xlabel('n/T_Q'); ylabel('|Q_c(f)|');
-subplot(1,3,2);
-stem(0:length(q_c)-1, q_c);
-xlabel('nT'); ylabel('q_c(nT)');
-subplot(1,3,3)
+stem((0:length(q_c)-1), q_c);
+xlabel('k');
+ylabel('q_c(k)');
+
+figure;
+plot(f_plot, 20*log10(abs(Q_f_plot)));
+xlabel('f (Fs = 4/T)');
+ylabel('Q_c(f) [dB]');
+
+figure;
 stem(0:length(q_match)-1, q_match);
 
 %compares error with and without c (something wrong)
