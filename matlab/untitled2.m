@@ -10,7 +10,7 @@ T_Q = T/up_factor;      % F_4 = 4
 Q_c_num = [zeros(1,10), 0.7424];   %beta
 Q_c_den = [1, -0.67];     %1-alfa
 
-q_c = impz(Q_c_num, Q_c_den, 27);
+q_c = impz(Q_c_num, Q_c_den, 32);
 
 [Q_f_plot, f_plot] = freqz(Q_c_num, Q_c_den, 1000, 1/(2*T_Q));
 
@@ -38,19 +38,42 @@ r_c = s_c + w;
 % RECEIVER
 
 %match filter
-M1 = 19;        %at least 12
-q_match = fliplr(q_c(1:M1)');  %already shifted
-r_r = conv(r_c,q_match);
-to = 19;  %%%%%%dal grafico di r_qc??? = E_q??(8.24) real t0= M1??
-r_sampled = zeros(1,length(a_Q)/4);
-for i = 1:length(a_Q)/4      %%sampling in to+i*T
-    r_sampled(1,i) = r_r(to+(i-1)*up_factor*T);
-end
+q_match = flip(conj(q_c));
+%[~, t_0_i] = max(abs(q_match));
+%t_0 = t_0_i-1;
+t_0 = 32;
+
+% figure;
+% Q_match = fft(q_match, 2048);
+% Q_f = fft(q_c, 2048);
+% f = linspace(0, 1/T_Q, 2048);
+% hold on;
+% plot(f, imag(Q_f));
+% plot(f, imag(Q_match));
+
+q_R = conv(q_c, q_match);
+
+figure;
+hold on;
+stem(q_R);
+plot([t_0, t_0], ylim);
+
+r_R = filter(q_match, 1, r_c); % q_match as FIR 
+
+r_R_t0 = r_R(t_0+1:length(r_R));
+
+r_sampled = downsample(r_R_t0, 4);
+
+% figure;
+% hold on;
+% stem(0:length(r_R)-1, abs(r_R));
+% stem(t_0:length(r_R)-1, abs(r_R_t0));
+% stem(t_0:4:length(r_R)-1, abs(r_sampled));
 
 %%%c estimation%%%
 r_qc = conv(q_c,q_match);      %%real t=14??
 
-r_qc = decimate(circshift(r_qc,length(r_qc)-to+1),4);
+r_qc = decimate(circshift(r_qc,length(r_qc)-t_0+1),4);
 r_qc = circshift(r_qc,length(r_qc)/2);
 R_QC = fft(r_qc);
 C = 1./R_QC;
@@ -61,8 +84,15 @@ received = conv(r_sampled,c);
 bit_est = QPSKdemodulator(received(1,length(c):length(received)));    %with c
 bit_est2 = QPSKdemodulator(r_sampled);      %without c
 
-P_bit = (length(find(bit_est - bits)) ~= 0)/length(bits)
-p_bit_no_c = length(find(bit_est2 - bits) ~= 0)/length(bits)
+diff_bits1 = bit_est - bits(1:length(bit_est));
+err_count1 = sum(abs(diff_bits1 ~=0));
+
+diff_bits2 = bit_est2 - bits(1:length(bit_est2));
+err_count2 = sum(abs(diff_bits2 ~=0));
+
+P_bit = err_count1 / length(bit_est);
+p_bit_no_c = err_count2 / length(bit_est2);
+fprintf('Pbit = %f, %f (no C)\n', P_bit, p_bit_no_c);
 
 figure;
 subplot(1,3,1);
