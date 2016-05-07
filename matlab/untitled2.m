@@ -18,8 +18,7 @@ q_c = impz(Q_c_num, Q_c_den, 27);
 Nbits = 1e4;
 assert(mod(Nbits, 2) == 0); % Must be even
 bits = round(rand(Nbits, 1));
-QPSK_mod = comm.QPSKModulator('BitInput',true);     %bit grey coded
-a = step(QPSK_mod,bits);
+a = QPSKmodulator(bits);
 a_Q = upsample(a,up_factor);
 
 %compute additional params.
