@@ -1,4 +1,4 @@
-function [r_c, s_c, w] = transmit_bits(bits, SNR, padding, varargin)
+function [r_c, s_c, w, sigma2_a, N0] = transmit_bits(bits, SNR, padding, varargin)
 zeronoise = false;
 if ~isempty(varargin)
     if any(strcmp(varargin, 'zeronoise'))
