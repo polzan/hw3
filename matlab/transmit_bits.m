@@ -17,16 +17,15 @@ q_c = impz(qc_b, qc_a, qc_length);
 % bitmap
 Nbits = length(bits);
 assert(mod(Nbits, 2) == 0); % Must be even
-a = QPSKmodulator(bits);
+[a, abs_a] = QPSKmodulator(bits);
 a_Q = upsample(a,up_factor);
 
 %compute additional params.
-E_q = norm(q_c)^2;      %energy of q
-sigma2_a = 1/sqrt(2);%/up_factor;    %%%%%%%%%%%????????
-%%%%lesson 21/04??
-sigma2_w = 10*log10(E_q*sigma2_a) - SNR;       %sigma2 = Msc*Q0 - SNR in dB
-sigma2_w = 10^(sigma2_w/10);            %%%linear noise power
-N0 = sigma2_w*T_Q;
+E_qc = norm(q_c)^2;      %energy of q_c
+sigma2_a = abs_a^2; % a uniform with mean 0
+
+sigma2_w = (E_qc * sigma2_a) / SNR;
+N0 = sigma2_w * T_Q;
 
 % noise
 w = sqrt(sigma2_w).*(randn(length(a_Q) + padding, 1) + 1j*(randn(length(a_Q) + padding, 1)));
