@@ -1,7 +1,23 @@
-function a = QPSKmodulator(bits)
+function [a, abs_a] = QPSKmodulator(bits)
+if mod(length(bits), 2) ~= 0
+    error('The QPSK modulator needs an even number of bits');
+end
 if size(bits, 1) == 1
     bits = transpose(bits);
 end
-QPSK_mod = comm.QPSKModulator('BitInput',true);     %bit grey coded
-a = step(QPSK_mod,bits);
+a = zeros(length(bits)/2, 1);
+d = 1;
+abs_a = sqrt(2*d);
+for i=2:2:length(bits)
+    if bits(i)
+        a(i/2) = -d;
+    else
+        a(i/2) = d;
+    end
+    if bits(i-1)
+        a(i/2) = a(i/2) - 1j*d;
+    else
+        a(i/2) = a(i/2) + 1j*d;
+    end
+end
 end
