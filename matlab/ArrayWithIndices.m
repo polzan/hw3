@@ -60,7 +60,7 @@ classdef ArrayWithIndices
                         try
                             varargout = {d(map_i)};
                         catch e
-                            if strcmp(e.identifier, 'MATLAB:badsubscript')
+                            if strcmp(e.identifier, 'MATLAB:badsubscript') && obj.autoPadding
                                 [known_k, known_k_ord] = intersect(s.subs{1}, obj.indices);
                                 known = d(obj.reverse_map_indices(known_k));
                                 [~, unknown_k_ord] = setdiff(s.subs{1}, obj.indices);
