@@ -7,7 +7,8 @@ D = 9;
 Nbits = 1e4;
 bits = round(rand(Nbits, 1));
 
-[r_c, s_c, w, sigma2_a, N0] = transmit_bits(bits, 11, t_0 + D*4); % add padding or tx more bits?
+SNR_target = 10^(11/10);   %lin. scale
+[r_c, s_c, w, sigma2_a, N0] = transmit_bits(bits, SNR_target, t_0 + D*4); % add padding or tx more bits?
 
 %match filter
 qc_length = 34; % after < 5e-5
@@ -96,5 +97,5 @@ stem(bit_est2-bits);
 figure;
 subplot(1,2,1)
 stem(0:length(r_qc)-1,r_qc);
-subplot(1,2,2)
+subplot(1,2,2) 
 stem(conv(c,r_qc))
