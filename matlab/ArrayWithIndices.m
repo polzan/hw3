@@ -80,6 +80,10 @@ classdef ArrayWithIndices < handle
             end
         end
         
+        function o = getOffset(obj)
+            o = obj.offset;
+        end
+        
         function k = map_indices(obj, i)
             k = i + 1 + obj.offset;
         end
