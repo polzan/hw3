@@ -1,88 +1,83 @@
-classdef ArrayWithIndices
+classdef ArrayWithIndices < handle
     properties(Access=protected)
         data;
-    end
-    
-    properties
         offset;
         autoPadding;
     end
     
-    properties(Dependent=true)
-        indices;
-        all;
-    end
-    
     methods
-        function obj = ArrayWithIndices(a)
+        function obj = ArrayWithIndices(a, offset)
             if nargin < 1
                 a = [];
             end
+            if nargin < 2
+                offset = 0;
+            end
             obj.data = a;
-            obj.offset = 0;
+            obj.offset = offset;
             obj.autoPadding = false;
         end
         
-        function obj = subsasgn(obj, s, varargin)
-            switch s(1).type
-                case '.'
-                    % Use built-in for any other expression
-                    obj = builtin('subsasgn',obj,s,varargin{:});
-                case '()'
-                    if length(s) == 1
-                        % Implement obj(indices) = varargin{:};
-                        d = obj.data;
-                        map_i = obj.reverse_map_indices(s.subs{1});
-                        d(map_i) = varargin{1};
-                        obj.data = d;
-                    else
-                        % Use built-in for any other expression
-                        obj = {builtin('subsasgn',obj,s,varargin)};
-                    end
-                case '{}'
-                    % Use built-in for any other expression
-                    obj = {builtin('subsasgn',obj,s,varargin)};
-                otherwise
-                    error('Not a valid indexing expression')
+        function setAutoPadding(obj, val)
+            obj.autoPadding = logical(val);
+        end
+        
+        function val = isAutoPadding(obj)
+            val = obj.autoPadding;
+        end
+        
+        function setData(obj, ind, val)
+            map_i = obj.reverse_map_indices(ind);
+            d = obj.data;
+            try
+                d(map_i) = val;
+            catch e
+                if strcmp(e.identifier, 'MATLAB:badsubscript')
+                    obj.alignOffset(min(ind));
+                    d = obj.data;
+                    map_i = obj.reverse_map_indices(ind);
+                    d(map_i) = val;
+                else
+                    rethrow(e);
+                end
+            end
+            obj.data = d;
+        end
+        
+        function val = getData(obj, ind)
+            map_i = obj.reverse_map_indices(ind);
+            d = obj.data;
+            try
+                val = d(map_i);
+            catch e
+                if strcmp(e.identifier, 'MATLAB:badsubscript') && obj.autoPadding
+                    [known_k, known_k_ord] = intersect(ind, obj.getIndices());
+                    known = d(obj.reverse_map_indices(known_k));
+                    [~, unknown_k_ord] = setdiff(ind, obj.getIndices());
+                    out = [];
+                    out(known_k_ord) = known;
+                    out(unknown_k_ord) = zeros(length(unknown_k_ord), 1);
+                    val = out;
+                else
+                    rethrow(e);
+                end
             end
         end
         
-        function varargout = subsref(obj,s)
-            switch s(1).type
-                case '.'
-                    % Use built-in for any other expression
-                    varargout = {builtin('subsref',obj,s)};
-                case '()'
-                    if length(s) == 1
-                        % Implement obj(indices)
-                        d = obj.data;
-                        map_i = obj.reverse_map_indices(s.subs{1});
-                        try
-                            varargout = {d(map_i)};
-                        catch e
-                            if strcmp(e.identifier, 'MATLAB:badsubscript') && obj.autoPadding
-                                [known_k, known_k_ord] = intersect(s.subs{1}, obj.indices);
-                                known = d(obj.reverse_map_indices(known_k));
-                                [~, unknown_k_ord] = setdiff(s.subs{1}, obj.indices);
-                                out = [];
-                                out(known_k_ord) = known;
-                                out(unknown_k_ord) = zeros(length(unknown_k_ord), 1);
-                                varargout = {out};
-                            else
-                                rethrow(e);
-                            end
-                        end
-                    else
-                        % Use built-in for any other expression
-                        varargout = {builtin('subsref',obj,s)};
-                    end
-                case '{}'
-                    % Use built-in for any other expression
-                    varargout = {builtin('subsref',obj,s)};
-                otherwise
-                    error('Not a valid indexing expression')
+        function alignOffset(obj, newoff)
+            if newoff < obj.offset
+                diff = obj.offset - newoff;
+                obj.data = [zeros(diff, 1); obj.data];
+                obj.offset = newoff;
+            elseif newoff > obj.offset
+                diff =  newoff - obj.offset;
+                d = obj.data;
+                if any(d(1:diff) ~= 0)
+                    error('Cannot drop nonzero elements');
+                end
+                obj.data = d(diff+1:length(d));
+                obj.offset = newoff;
             end
-            
         end
         
         function k = map_indices(obj, i)
@@ -93,17 +88,16 @@ classdef ArrayWithIndices
             i = k - obj.offset + 1;
         end
         
-        function indices = get.indices(obj)
+        function indices = getIndices(obj)
             indices = (1:length(obj.data)) - 1 + obj.offset;
         end
         
-        function d = get.all(obj)
+        function d = getAll(obj)
             d = obj.data;
         end
         
         function obj_f = flip(obj)
-            obj_f = ArrayWithIndices(flip(obj.data));
-            obj_f.offset = - obj.offset - length(obj.data) + 1;
+            obj_f = ArrayWithIndices(flip(obj.data), - obj.offset - length(obj.data) + 1);
         end
     end
 end
