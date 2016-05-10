@@ -1,4 +1,4 @@
-close all; clear all; clc;
+close all;
 
 t_0 = 33; % Must be >= qc_length (causal matched filter) ?
 D = 9;
@@ -7,14 +7,14 @@ D = 9;
 Nbits = 1e4;
 bits = round(rand(Nbits, 1));
 
-SNR_target = 10^(11/10);   %lin. scale
-[r_c, s_c, w, sigma2_a, N0] = transmit_bits(bits, SNR_target, t_0 + D*4); % add padding or tx more bits?
+bits(1:500) = ones(500, 1);
+bits(501:1000) = zeros(500, 1);
+
+SNR_target = 11;   %lin. scale
+[r_c, s_c, w, sigma2_a, N0] = transmit_bits(bits, SNR_target, t_0 + D*4, 'zeronoise'); % add padding or tx more bits?
 
 %match filter
-qc_length = 34; % after < 5e-5
-[qc_b, qc_a] = transmitter_tf();
-q_c = impz(qc_b, qc_a, qc_length);
-q_match = flip(conj(q_c));
+q_match = matched_filter();
 
 q_R = conv(q_c, q_match);
 figure;
@@ -26,28 +26,23 @@ stem(-length(q_c)+1:length(q_c)-1, q_R);
 plot([t_0, t_0] - length(q_c)+1, ylim);
 
 r_R = filter(q_match, 1, r_c); % q_match as FIR 
-r_R_t0 = r_R(t_0+1:length(r_R));
-r_sampled = downsample(r_R_t0, 4);
-
-r_w = N0 * r
-
-
-
-
-
-return;
+r_sampled = downsample(r_R, 4, mod(t_0, 4));
 
 %%%c estimation%%%
 r_qc = downsample(q_R, 4, mod(t_0,4));
+t_0_sampled = floor(t_0 / 4);
 
-R_QC = fft(r_qc);
-C = 1./R_QC;
-c = ifft(sigma2_a./(N0 + sigma2_a.*R_QC));
-
+r_qc_t0 = ArrayWithIndices(r_qc, -t_0_sampled);
 
 
 figure;
-plot(abs(C));
+stem(r_qc_t0.getIndices(), r_qc_t0.getAll());
+
+M1 = 7;
+N2 = length(r_qc) - t_0_sampled - 1;
+M2 = -D + N2 + M1 -1;
+[c, b] = dfe_filters(sigma2_a, N0, downsample(q_match, 4, mod(t_0, 4)), r_qc_t0, D, M1, M2);
+
 figure;
 stem(c);
 
@@ -57,8 +52,11 @@ stem(psi);
 hold on;
 plot([D+1 D+1], ylim);
 
-received = filter(c, 1, r_sampled);
-received = received(D+1:length(received));
+received = dfe_filtering(c,b,r_sampled,D);
+
+
+skip_transient = t_0_sampled + D;
+received = received(skip_transient+1:length(received));
 
 % c_opt_b = [zeros(D,1); sigma2_a];
 % c_opt_a = sigma2_a .* r_qc;
@@ -81,8 +79,8 @@ received = received(D+1:length(received));
 %received = filter(c_opt_b, c_opt_a, r_sampled);
 
 %decoded bits
-bit_est = QPSKdemodulator(received);    %with c
-bit_est2 = QPSKdemodulator(r_sampled(1:length(r_sampled)-D));      %without c
+bit_est = QPSKdemodulator([received(3:length(received)); 0; 1; 0]);    %with c
+bit_est2 = QPSKdemodulator(r_sampled(t_0_sampled + 1 :length(r_sampled)-D));      %without c
 
 diff_bits1 = bit_est - bits(1:length(bit_est));
 err_count1 = sum(abs(diff_bits1 ~=0));
@@ -107,3 +105,12 @@ subplot(1,2,1)
 stem(0:length(r_qc)-1,r_qc);
 subplot(1,2,2) 
 stem(conv(c,r_qc))
+
+
+figure;
+subplot(3,1,1);
+stem(0:length(bits)-1, bits);
+subplot(3,1,2);
+stem(t_0_sampled+(0:length(bit_est2)-1), bit_est2);
+subplot(3,1,3);
+stem((0:length(bit_est)-1) + t_0_sampled + D, bit_est);

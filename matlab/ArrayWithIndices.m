@@ -54,7 +54,7 @@ classdef ArrayWithIndices < handle
                     [known_k, known_k_ord] = intersect(ind, obj.getIndices());
                     known = d(obj.reverse_map_indices(known_k));
                     [~, unknown_k_ord] = setdiff(ind, obj.getIndices());
-                    out = [];
+                    out = zeros(length(ind),1);
                     out(known_k_ord) = known;
                     out(unknown_k_ord) = zeros(length(unknown_k_ord), 1);
                     val = out;
@@ -78,6 +78,10 @@ classdef ArrayWithIndices < handle
                 obj.data = d(diff+1:length(d));
                 obj.offset = newoff;
             end
+        end
+        
+        function obj_t = translate(obj, delta)
+            obj_t = ArrayWithIndices(obj.data, obj.offset + delta);            
         end
         
         function o = getOffset(obj)

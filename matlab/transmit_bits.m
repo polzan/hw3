@@ -24,7 +24,7 @@ a_Q = upsample(a,up_factor);
 E_qc = norm(q_c)^2;      %energy of q_c
 sigma2_a = abs_a^2; % a uniform with mean 0
 
-sigma2_w = (E_qc * sigma2_a) / SNR;
+sigma2_w = (E_qc * sigma2_a) / 10^(SNR/10);
 N0 = sigma2_w * T_Q;
 
 % noise
