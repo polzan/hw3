@@ -1,4 +1,4 @@
-function [c,b] = dfe_filters(sigma2_a, N0, q_match_impz, h, D, M1, M2)
+function [c,b] = build_dfe_filters(sigma2_a, N0, q_match_impz, h, D, M1, M2)
 %assert(M1 <= D);
 N1 = abs(min(h.getIndices()));
 N2 = abs(max(h.getIndices()));
