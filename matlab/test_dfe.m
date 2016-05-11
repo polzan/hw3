@@ -44,20 +44,20 @@ plot(t0_sampled*ones(2,1), ylim);
 % equalizer = dfe(M1, M2, rls(0.3));
 % %equalizer.RefTap = D;
 % y = equalize(equalizer, rr_sampled);
-M1 = 2;
-M2 = 2;
-D = 1;
+M1 = 4;
+M2 = 3;
+D = 4;
 [c, b] = build_dfe_filters(qc, gm, t0, sigma2_a, N0, D, M1, M2);
 
 [dec_sym_dfe, y] = dfe_filtering(c, b, rr_sampled, D);
 
-loop_tf_b = c;
-loop_tf_a = -b;
-loop_tf_a(1) = loop_tf_a(1) + 1;
-figure;
-impz(loop_tf_b, loop_tf_a);
-
-y = filter(loop_tf_b, loop_tf_a, rr_sampled);
+% loop_tf_b = c;
+% loop_tf_a = -b;
+% loop_tf_a(1) = loop_tf_a(1) + 1;
+% figure;
+% impz(loop_tf_b, loop_tf_a);
+% 
+% y = filter(loop_tf_b, loop_tf_a, rr_sampled);
 
 figure;
 stem(c);

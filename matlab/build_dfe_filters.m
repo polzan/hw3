@@ -49,7 +49,8 @@ if M2 == 0
     b = [0];
 else
     psi = conv(h, c);
-    b(1) = 0;
+    b = zeros(M2+1, 1);
     b((1:M2)+1)= -psi((1:M2)+1+t0_sampled+D);
+    b = b(2:M2+1);
 end
 end

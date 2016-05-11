@@ -7,15 +7,15 @@ else
     Nsym = length(x);
     detected_syms = zeros(Nsym, 1);
     y = zeros(Nsym, 1);
-    %B = dfilt.df2(b, 1);
-    %B.PersistentMemory = true;
-    b_state = [];
     for k=0:Nsym-1
-        if k-(D+10) >= 0
-            [xfb_k, b_state] = filter(b, 1, detected_syms(k-(D+10)+1), b_state);
+        if k-D-length(b) >= 0
+            a_D = detected_syms((k-D-length(b)+1:k-D)+1);
+        elseif k-D >= 0
+            a_D = [zeros(length(b)-k+D-1, 1); detected_syms((0:k-D)+1)];
         else
-            [xfb_k, b_state] = filter(b, 1, 0, b_state);
+            a_D = zeros(length(b), 1);
         end
+        xfb_k = transpose(b) * flip(a_D);
         y(k+1) = xff(k+1) + xfb_k;
         [~, detected_syms(k+1)] = QPSKdemodulator(y(k+1));
     end
