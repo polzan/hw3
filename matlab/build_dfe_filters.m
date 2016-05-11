@@ -5,7 +5,7 @@ t0_sampled = floor(t0/4);
 N1 = t0_sampled;
 N2 = length(h)-1 - t0_sampled;
 assert(length(h) == N1 + N2 + 1);
-if nargin < 7
+if nargin < 8
     M2 = -D + N2 + M1 -1;
 end
 r_gm = xcorr(gm, 'none');
@@ -24,7 +24,7 @@ assert(D >= 0);
 assert(D <= N2-1);
 P = r_ax((1:M1) - D + t0_sampled);
 
-assert(D+M2 <= N2-1);
+%assert(D+M2 <= N2-1);
 R = zeros(M1, M1);
 for p=0:M1-1;
     for q=0:M1-1
@@ -32,8 +32,10 @@ for p=0:M1-1;
         if M2 == 0
             s2 = 0;
         else
-            h1 = h((D+1:D+M2) -q + t0_sampled +1);
-            h2 = conj(h((D+1:D+M2) -p + t0_sampled +1));
+            pad_amount = M2;
+            h_pad = [zeros(pad_amount, 1); h; zeros(pad_amount, 1)];
+            h1 = h_pad((D+1:D+M2) -q + t0_sampled +1 +pad_amount);
+            h2 = conj(h_pad((D+1:D+M2) -p + t0_sampled +1 +pad_amount));
             s2 = transpose(h1) * h2;
         end
         
@@ -46,10 +48,8 @@ c = linsolve(R, P);
 if M2 == 0
     b = [0];
 else
-    h_D = h.translate(D);
-    b = zeros(M2, 1);
-    for i=1:M2
-        b(i) = - c.' * h_D.getData(i:i+M1-1);
-    end
+    psi = conv(h, c);
+    b(1) = 0;
+    b((1:M2)+1)= -psi((1:M2)+1+t0_sampled+D);
 end
 end
