@@ -1,7 +1,18 @@
 close all;
-[rc, sc, a, bits, wc, sigma2_a, N0] = QPSKtransmitter_random(1e4, 11, 1e5, 1e8);
 
 t0 = 33;
+M1 = 5;
+M2 = 5;
+D = 1;
+
+l_estim = 30*1e4 + ceil(t0_sampled/2 + D/2);
+l_estim = l_estim + mod(l_estim,2);
+
+SNR = 11;
+SNR_lin = 10^(SNR/10);
+[rc, sc, a, bits, wc, sigma2_a, N0] = QPSKtransmitter_random(l_estim, SNR, 1e5, 1e8);
+
+
 
 [rr, rr_sampled, gm] = matched_filter(rc, t0);
 
@@ -44,9 +55,7 @@ plot(t0_sampled*ones(2,1), ylim);
 % equalizer = dfe(M1, M2, rls(0.3));
 % %equalizer.RefTap = D;
 % y = equalize(equalizer, rr_sampled);
-M1 = 4;
-M2 = 3;
-D = 4;
+
 [c, b] = build_dfe_filters(qc, gm, t0, sigma2_a, N0, D, M1, M2);
 
 [dec_sym_dfe, y] = dfe_filtering(c, b, rr_sampled, D);
@@ -117,3 +126,6 @@ figure;
 hold on;
 scatter(real(y), imag(y));
 scatter(real(a), imag(a));
+
+Pe = 4*(1-1/sqrt(4))*(1 - normcdf(sqrt(3/(4-1)*SNR_lin),0,1));
+Pbit_upper_bound = 1/log2(4) * Pe;
