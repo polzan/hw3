@@ -1,5 +1,5 @@
 function [pbit, tot_errs, tot_bits] = estimate_pbit(simulate_txrx, SNR)
-err_needed = 30;
+err_needed = 100;
 blocklength = 1e4;
 tot_errs = 0;
 tot_bits = 0;

@@ -2,8 +2,8 @@ function [Pbit, err_count] = simulate_dfe(Nbits, SNR)
 % Parameters
 t0 = 33;
 t0_sampled = floor(t0/4);
-M1 = 5;
-M2 = 5;
+M1 = 4;
+M2 = 4;
 D = 1;
 
 Nbits_w_transient = Nbits + 2*t0_sampled + 2*D;
