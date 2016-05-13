@@ -1,4 +1,4 @@
-function [Pbit, err_count] = simulate_dfe(Nbits, SNR)
+function [Pbit, Pe, err_count, sym_err_count] = simulate_dfe(Nbits, SNR)
 % Parameters
 t0 = 33;
 t0_sampled = floor(t0/4);
@@ -19,6 +19,10 @@ qc = impz(qc_b, qc_a, qc_length);
 
 rr_syms_only = y(t0_sampled+D+1:length(y));
 [dec_bits, dec_syms] = QPSKdemodulator(rr_syms_only);
+
+a_notail = a(1:Nbits/2);
+sym_err_count = sum(dec_syms ~= a_notail);
+Pe = sym_err_count / length(a_notail);
 
 bits_notail = bits(1:Nbits); % bits transmitted without the final transient
 err_count = sum(abs(dec_bits-bits_notail));

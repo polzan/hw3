@@ -2,23 +2,43 @@ close all; clear all; clc;
 
 SNRs = linspace(8, 14, 20);
 
-pbits = zeros(length(SNRs), 2);
-pbit_bounds = zeros(length(SNRs), 1);
-for i=1:length(SNRs)    
-    [pbits(i, 1), tot_errs, tot_bits] = estimate_pbit(@simulate_le, SNRs(i));
-    fprintf('LE Nbit = %d, errs = %d\n', tot_bits, tot_errs);
+% Symbol error bounds
+pe_bounds = zeros(length(SNRs), 2);
+for i=1:length(SNRs)
+    Q = @(x) 1 - normcdf(x, 0, 1);
     
-    [pbits(i, 2), tot_errs, tot_bits] = estimate_pbit(@simulate_dfe, SNRs(i));
-    fprintf('DFE Nbit = %d, errs = %d\n', tot_bits, tot_errs);
-    
-    SNR_lin = 10^(SNRs(i)/10);
-    Pe = 4*(1-1/sqrt(4))*(1 - normcdf(sqrt(3/(4-1)*SNR_lin), 0, 1));
-    pbit_bounds(i,1) = 1/log2(4) * Pe;
+    % QAM lower bound
+    SNR_lin = 10^(SNRs(i)/10);    
+    pe_bounds(i,1) = 2 * Q(sqrt(SNR_lin));
 end
 
-figure;
+% Pe vs SNR
+pes = zeros(length(SNRs), 2);
+err_needed = 30;
+blocklength = 1e4;
+for i=1:length(SNRs)    
+    [~, pes(i, 1), tot_bits] = estimate_pbit(@simulate_le, SNRs(i), err_needed, blocklength);
+    %fprintf('LE Nbit = %d\n', tot_bits);
+    
+    [~, pes(i, 2), tot_bits] = estimate_pbit(@simulate_dfe, SNRs(i), err_needed, blocklength);
+    %fprintf('DFE Nbit = %d, errs = %d\n', tot_bits, tot_errs);
+    fprintf('.');
+    if mod(i, 5) == 0
+        fprintf('%d', i);
+    end
+end
+fprintf('\n');
 
-semilogy(SNRs, pbits(:,1));
+% Plots
+figure;
+semilogy(SNRs, pes(:,1), 'b:');
 hold on;
-semilogy(SNRs, pbits(:,2));
-semilogy(SNRs, pbit_bounds(:,1));
+semilogy(SNRs, pes(:,2), 'b-');
+
+semilogy(SNRs, pe_bounds(:,1), 'g-');
+
+xlabel('SNR [dB]');
+ylabel('Pe');
+grid on;
+xlim([8, 14]);
+ylim([1e-4, 1e-1]);
