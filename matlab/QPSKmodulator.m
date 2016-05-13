@@ -1,4 +1,4 @@
-function [a, abs_a] = QPSKmodulator(bits)
+function a = QPSKmodulator(bits)
 if mod(length(bits), 2) ~= 0
     error('The QPSK modulator needs an even number of bits');
 end
@@ -7,7 +7,6 @@ if size(bits, 1) == 1
 end
 a = zeros(length(bits)/2, 1);
 d = 1;
-abs_a = sqrt(2*d);
 for i=2:2:length(bits)
     if bits(i)
         a(i/2) = -d;

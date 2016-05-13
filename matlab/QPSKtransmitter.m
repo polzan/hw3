@@ -11,12 +11,12 @@ T_Q = T/up_factor;      % F_Q = 4/T
 qc = impz(qc_b, qc_a, qc_length);
 
 % bitmap
-[a, abs_a] = QPSKmodulator(bits);
+a = QPSKmodulator(bits);
 a_up = upsample(a,up_factor);
 
 %compute additional params.
 E_qc = norm(qc)^2;      %energy of q_c
-sigma2_a = abs_a^2; % a uniform with mean 0
+sigma2_a = 2; % a uniform with mean 0
 
 sigma2_wc = (E_qc * sigma2_a) / 10^(SNR/10);
 N0 = sigma2_wc * T_Q;
