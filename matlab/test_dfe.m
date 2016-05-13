@@ -1,12 +1,11 @@
 close all;
 
 t0 = 33;
-M1 = 5;
-M2 = 5;
+M1 = 4;
+M2 = 4;
 D = 1;
 
-l_estim = 30*1e4 + ceil(t0_sampled/2 + D/2);
-l_estim = l_estim + mod(l_estim,2);
+l_estim = 1e4 + ceil(floor(t0/4)*2+ D*2);
 
 SNR = 11;
 SNR_lin = 10^(SNR/10);
