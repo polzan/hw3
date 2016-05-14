@@ -46,11 +46,11 @@ classdef ViterbiDetector < handle
                 for j=1:length(self.states)
                     best_i = 0;
                     best_path_metric = Inf;
-                    for i=1:length(self.states)
+                    [~, is] = find(self.connections(j,:));
+                    for i=is
                         previous_path_metric = full(path_metrics(i, (k-1)+2));
                         if previous_path_metric == Inf; continue; end
                         branch_metr_i_j = self.branch_metric(j, i, rho(k+1));
-                        if branch_metr_i_j == Inf; continue; end
                         next_path_metric = previous_path_metric + branch_metr_i_j;
                         if next_path_metric < best_path_metric
                             best_i = i;
@@ -89,11 +89,7 @@ classdef ViterbiDetector < handle
         end
         
         function bm = branch_metric(self, j, i, rho_k)
-            if isempty(self.connections(j, i))
-                bm = Inf;
-            else
-                bm = abs(rho_k - self.received_samples(j, i))^2;
-            end
+            bm = abs(rho_k - self.received_samples(j, i))^2;
         end
     end
     
