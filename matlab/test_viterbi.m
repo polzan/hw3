@@ -1,9 +1,9 @@
-close all; clear all; clc;
+close all; clear all;
 
 alphabet = [1+1j; 1-1j; -1-1j; -1+1j];
 %alphabet = [];
 M = length(alphabet);
-K = 5;
+K = 20;
 L1 = 1;
 L2 = 2;
 
@@ -15,6 +15,7 @@ survivors = sparse(M^(L1+L2), K+1);
 % Initial state set to -1,-1
 %path_metrics(:,1) = [0; Inf * ones(M^(L1+L2)-1,1)];
 % First state is the initial state k=-1
+rng(4);
 rho = alphabet(round(rand(K, 1) .* 3 + 1));
 f = @(sigma_j, sigma_i) sigma_j(1+L1);
 for k=0:K-1
