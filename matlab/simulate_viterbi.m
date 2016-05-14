@@ -6,6 +6,11 @@ M1 = 3;
 M2 = 3;
 D = 1;
 
+% Viterbi params
+trellis_depth = 30;
+L1 = 0; % No precursors
+L2 = M2; % Same postcursors of the DFE
+
 Nbits_w_transient = Nbits + 2*t0_sampled + 2*D;
 
 % Generate a transmitted signal with random iid bits
@@ -23,11 +28,6 @@ y = filter(c, 1, rr_sampled);
 qR = conv(qc, gm);
 qR_sampled = downsample(qR, 4, mod(t0, 4));
 psi = conv(qR_sampled, c);
-
-% Viterbi params
-trellis_depth = 30;
-L1 = 0; % No precursors
-L2 = M2; % Same postcursors of the DFE
 
 alphabet = [1+1j; 1-1j; -1-1j; -1+1j];
 vd = ViterbiDetector(alphabet, trellis_depth, L1, L2, psi, t0_sampled + D);
