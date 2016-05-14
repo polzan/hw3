@@ -22,6 +22,9 @@ for i=1:length(SNRs)
     
     [~, pes(i, 2), tot_bits] = estimate_pbit(@simulate_dfe, SNRs(i), err_needed, blocklength);
     %fprintf('DFE Nbit = %d, errs = %d\n', tot_bits, tot_errs);
+    
+    [~, pes(i, 3), tot_bits] = estimate_pbit(@simulate_viterbi, SNRs(i), err_needed, blocklength);
+    
     fprintf('.');
     if mod(i, 5) == 0
         fprintf('%d', i);
@@ -34,6 +37,7 @@ figure;
 semilogy(SNRs, pes(:,1), 'b:');
 hold on;
 semilogy(SNRs, pes(:,2), 'b-');
+semilogy(SNRs, pes(:,3), 'r:');
 
 semilogy(SNRs, pe_bounds(:,1), 'g-');
 
