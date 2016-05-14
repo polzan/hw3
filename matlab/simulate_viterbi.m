@@ -24,14 +24,6 @@ qR = conv(qc, gm);
 qR_sampled = downsample(qR, 4, mod(t0, 4));
 psi = conv(qR_sampled, c);
 
-figure;
-stem(psi);
-title('psi');
-
-figure;
-scatter(real(y), imag(y),'.');
-title('y');
-
 % Viterbi params
 trellis_depth = 30;
 L1 = 0; % No precursors

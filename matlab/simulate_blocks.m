@@ -1,6 +1,6 @@
 close all; clear all; clc;
 
-SNRs = linspace(8, 14, 20);
+SNRs = linspace(8, 14, (14-8)/2); % every 0.5 dB
 
 % Symbol error bounds
 pe_bounds = zeros(length(SNRs), 2);
