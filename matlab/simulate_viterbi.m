@@ -1,7 +1,4 @@
 function [Pbit, Pe, err_count, sym_err_count] = simulate_viterbi(Nbits, SNR)
-Nbits = 1e3;
-SNR = 11;
-
 % Parameters
 t0 = 33;
 t0_sampled = floor(t0/4);
