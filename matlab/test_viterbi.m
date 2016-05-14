@@ -3,8 +3,8 @@ close all; clear all; clc;
 alphabet = [1+1j; 1-1j; -1-1j; -1+1j];
 %alphabet = [];
 M = length(alphabet);
-K = 6;
-L1 = 0;
+K = 5;
+L1 = 1;
 L2 = 2;
 
 states = all_states(alphabet, L1+L2);
@@ -13,10 +13,10 @@ path_metrics = sparse(M^(L1+L2), K+1);
 survivors = sparse(M^(L1+L2), K+1);
 
 % Initial state set to -1,-1
-path_metrics(:,1) = [0; Inf * ones(M^(L1+L2)-1,1)];
+%path_metrics(:,1) = [0; Inf * ones(M^(L1+L2)-1,1)];
 % First state is the initial state k=-1
 rho = alphabet(round(rand(K, 1) .* 3 + 1));
-f = @(sigma_j, sigma_i) sigma_j(1);
+f = @(sigma_j, sigma_i) sigma_j(1+L1);
 for k=0:K-1
     next_path_metrics = zeros(length(states), 1);
     next_survivors = zeros(length(states), 1);
@@ -44,7 +44,7 @@ end
 full(path_metrics)
 full(survivors)
 
-% Detected symbols
+% Detected state sequence
 [min_metric, min_j] = min(full(path_metrics(:, K+1)));
 state_seq = zeros(K+1, L1+L2);
 state_seq(K-1+2,:) = states(min_j,:);
@@ -58,6 +58,16 @@ while k > -1
     j = previous_state_i;
 end
 
-states(1,:)
-rho.'
-state_seq
+% Detected symbols
+a = zeros(K, 1);
+k = K-1;
+while k >= 0
+    a(k+1) = state_seq(k+2, L1+1);
+    k = k-1;
+end
+
+sym_err_count = sum(a ~= rho);
+Pe = sym_err_count / K;
+
+fprintf('Pe = %f on one trellis depth of %d\n', Pe, K);
+
