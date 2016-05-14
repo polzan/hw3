@@ -23,7 +23,7 @@ for k=0:K-1
         for i=1:length(states)
             previous_path_metric = full(path_metrics(i, (k-1)+2));
             if previous_path_metric == Inf; continue; end
-            branch_metr_i_j = branch_metric(states(j,:), states(i,:), rho(k+1), f);
+            branch_metr_i_j = branch_metric(j, i, states(j,:), states(i,:), rho(k+1), f);
             if branch_metr_i_j == Inf; continue; end
             next_path_metric = previous_path_metric + branch_metr_i_j;
             if next_path_metric < best_path_metric
@@ -81,12 +81,25 @@ else
 end
 end
 
-function bm = branch_metric(sigma_j, sigma_i, rho_k, f)
-if any(sigma_j(2:length(sigma_j)) ~= sigma_i(1:length(sigma_i)-1))
+function bm = branch_metric(j, i, sigma_j, sigma_i, rho_k, f)
+if ~is_transition_possible(j,i,sigma_j,sigma_i)
     bm = Inf;
 else
     bm = abs(rho_k - f(sigma_j, sigma_i))^2;
 end
+end
+
+function y = is_transition_possible(j, i, sigma_j, sigma_i)
+persistent result_table;
+if isempty(result_table)
+    result_table = sparse(1000, 1000);
+end
+y_ = result_table(j, i);
+if y_ == 0
+    y_ = 1 + any(sigma_j(2:length(sigma_j)) ~= sigma_i(1:length(sigma_i)-1));
+    result_table(j, i) = y_;
+end
+y = y_ - 1;
 end
 
 function u_k = received_sample(sigma_j, sigma_i, psi, psi_delay, L1, L2)
