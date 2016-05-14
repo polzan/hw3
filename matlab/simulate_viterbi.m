@@ -43,6 +43,8 @@ for i=0:block_num-1
     [detected_syms_block, final_path_metrics] = vd.detect_symbols(rho_block, initial_path_metrics);
     detected_syms = [detected_syms; detected_syms_block];
     initial_path_metrics = final_path_metrics;
+    % Decrease the values of the metrics
+    initial_path_metrics = initial_path_metrics - min(initial_path_metrics);
 end
 
 %Last block
