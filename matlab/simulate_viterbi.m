@@ -37,6 +37,9 @@ trellis_depth = 30;
 L1 = 0; % No precursors
 L2 = M2; % Same postcursors of the DFE
 
+alphabet = [1+1j; 1-1j; -1-1j; -1+1j];
+vd = ViterbiDetector(alphabet, trellis_depth, L1, L2, psi, t0_sampled + D);
+
 % Run the viterbi algorithm on blocks of samples
 block_num = floor(length(y)/trellis_depth);
 last_block_length = mod(length(y), trellis_depth);
@@ -45,15 +48,16 @@ detected_syms = [];
 initial_path_metrics = zeros(4^(L1+L2), 1); % Start with equal likelyhood for every state
 for i=0:block_num-1
     rho_block = y(trellis_depth*i+(1:trellis_depth));
-    [detected_syms_block, final_path_metrics] = viterbi_decoder(L1, L2, trellis_depth, psi, t0_sampled, D, initial_path_metrics, rho_block);
+    [detected_syms_block, final_path_metrics] = vd.detect_symbols(rho_block, initial_path_metrics);
     detected_syms = [detected_syms; detected_syms_block];
     initial_path_metrics = final_path_metrics;
 end
 
 %Last block
 if last_block_length > 0
+    vd_last = ViterbiDetector(alphabet, last_block_length, L1, L2, psi, t0_sampled + D);
     rho_last = y(trellis_depth*block_num + (1:last_block_length));
-    [detected_syms_last, final_path_metrics] = viterbi_decoder(L1, L2, last_block_length, psi, t0_sampled, D, initial_path_metrics, rho_last);
+    [detected_syms_last, final_path_metrics] = vd_last.detect_symbols(rho_last, initial_path_metrics);
     detected_syms = [detected_syms; detected_syms_last];
 end
 
