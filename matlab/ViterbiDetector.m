@@ -17,9 +17,6 @@ classdef ViterbiDetector < handle
     
     methods
         function self = ViterbiDetector(alphabet, trellis_depth, L1, L2, psi, psi_delay)
-            if size(alphabet, 1) ~= 0
-                alphabet = transpose(alphabet);
-            end
             self.alphabet = alphabet;
             self.M = length(alphabet);
             self.K = trellis_depth;
@@ -133,15 +130,27 @@ classdef ViterbiDetector < handle
         
         function build_received_samples(self)
             [js, is] = find(self.connections);
-            us = zeros(length(is), 1);
+            u = zeros(length(is), 1);
+            % Pad psi when -L1..L2 is larger
+            padded_psi_delay = self.psi_delay;
+            padded_psi = self.psi;
+            if -self.L1 + padded_psi_delay < 0
+                pad_amount = self.L1 - padded_psi_delay;
+                padded_psi = [zeros(pad_amount, 1); padded_psi];
+                padded_psi_delay = padded_psi_delay + pad_amount;
+            end
+            if self.L2 + padded_psi_delay > length(padded_psi) - 1
+                pad_amount = self.L2 + padded_psi_delay - length(padded_psi) + 1;
+                padded_psi = [padded_psi; zeros(pad_amount, 1)];
+            end
+            eta = padded_psi((-self.L1:self.L2) + padded_psi_delay + 1);
             for n=1:length(is)
                 sigma_j = self.states(js(n),:);
                 sigma_i = self.states(is(n),:);
                 a = [sigma_j(1,:), sigma_i(1,length(sigma_i))];
-                u = conv(a, self.psi);
-                us(n) = u(self.psi_delay+self.L1+1);
+                u(n) = a * eta;
             end
-            self.received_samples = sparse(js, is, us);
+            self.received_samples = sparse(js, is, u);
         end
     end
 end
