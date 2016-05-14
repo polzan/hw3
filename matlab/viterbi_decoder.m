@@ -1,6 +1,6 @@
 function [detected_syms, final_path_metrics] = viterbi_decoder(L1, L2, trellis_depth, psi, t0, D, initial_path_metrics, rho)
-%alphabet = [1+1j; 1-1j; -1-1j; -1+1j]; % QPSK
-alphabet = [-1,1];
+alphabet = [1+1j; 1-1j; -1-1j; -1+1j]; % QPSK
+
 M = length(alphabet);
 K = trellis_depth;
 total_psi_delay = t0+D;

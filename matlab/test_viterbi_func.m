@@ -1,7 +1,7 @@
 close all; 
 
-%alphabet = [1+1j; 1-1j; -1-1j; -1+1j];
-alphabet = [-1,1];
+alphabet = [1+1j; 1-1j; -1-1j; -1+1j];
+%alphabet = [-1,1];
 
 K = 100;
 L1 = 0;
@@ -11,10 +11,10 @@ psi = [0; 0; 1; 0.1];
 t0 = 1;
 D = 1;
 
-initial_path_metrics = zeros(2^(L1+L2), 1);
+initial_path_metrics = zeros(4^(L1+L2), 1);
 
 rng(4);
-a_tx = alphabet(round(rand(K, 1) .* 1 + 1)).';
+a_tx = alphabet(round(rand(K, 1) .* 3 + 1));
 
 rho = conv(psi, a_tx);
 %rho = rho(t0+D+1:length(rho)-1);
@@ -29,8 +29,12 @@ Pe = sym_err_count / K;
 fprintf('Pe = %f on one trellis depth of %d\n', Pe, K);
 
 figure;
-stem(0:length(rho)-1, rho);
+stem(0:length(rho)-1, real(rho));
 hold on;
-stem(0:length(a)-1, a);
-
+stem(0:length(a)-1, real(a));
 ylim([-1.2 1.2]);
+
+figure;
+scatter(real(rho), imag(rho));
+hold on;
+scatter(real(a), imag(a));
