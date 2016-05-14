@@ -50,7 +50,7 @@ classdef ViterbiDetector < handle
                     for i=is
                         previous_path_metric = full(path_metrics(i, (k-1)+2));
                         if previous_path_metric == Inf; continue; end
-                        branch_metr_i_j = self.branch_metric(j, i, rho(k+1));
+                        branch_metr_i_j = abs(rho(k+1) - self.received_samples(j, i))^2;
                         next_path_metric = previous_path_metric + branch_metr_i_j;
                         if next_path_metric < best_path_metric
                             best_i = i;
@@ -86,10 +86,6 @@ classdef ViterbiDetector < handle
                 detected_syms(k+1) = state_seq(k+2, self.L1+1);
                 k = k-1;
             end
-        end
-        
-        function bm = branch_metric(self, j, i, rho_k)
-            bm = abs(rho_k - self.received_samples(j, i))^2;
         end
     end
     
