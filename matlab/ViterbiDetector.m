@@ -48,7 +48,7 @@ classdef ViterbiDetector < handle
                     best_path_metric = Inf;
                     [~, is] = find(self.connections(j,:));
                     for i=is
-                        previous_path_metric = full(path_metrics(i, (k-1)+2));
+                        previous_path_metric = path_metrics(i, (k-1)+2);
                         if previous_path_metric == Inf; continue; end
                         branch_metr_i_j = abs(rho(k+1) - self.received_samples(j, i))^2;
                         next_path_metric = previous_path_metric + branch_metr_i_j;
@@ -72,7 +72,7 @@ classdef ViterbiDetector < handle
             k = self.K-1;
             j = min_j;
             while k > -1
-                previous_state_i = full(survivors(j, k+2));
+                previous_state_i = survivors(j, k+2);
                 previous_state = self.states(previous_state_i,:);
                 state_seq((k-1)+2,:) = previous_state;
                 k = k-1;
