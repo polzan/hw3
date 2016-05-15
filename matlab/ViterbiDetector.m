@@ -128,7 +128,7 @@ classdef ViterbiDetector < handle
         
         function s = build_all_states_recursive_helper(self, L)
             if L > 1
-                s_ = all_states(self.alphabet, L-1);
+                s_ = self.build_all_states_recursive_helper(L-1);
                 s = [];
                 for i=1:length(self.alphabet)
                     for j=1:size(s_,1)
