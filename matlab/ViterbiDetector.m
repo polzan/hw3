@@ -13,6 +13,10 @@ classdef ViterbiDetector < handle
         states;
         connections;
         received_samples;
+        
+        path_metrics;
+        survivors;
+        full_trellis;
     end
     
     methods
@@ -29,59 +33,84 @@ classdef ViterbiDetector < handle
             self.build_all_states();
             self.build_all_connections();
             self.build_received_samples();
+            
+            self.reset();
         end
         
-        function [detected_syms, final_path_metrics] = detect_symbols(self, rho, initial_path_metrics)
-            path_metrics = sparse(self.M^(self.L1+self.L2), self.K+1);
-            survivors = sparse(self.M^(self.L1+self.L2), self.K+1);
+        function reset(self, initial_path_metrics)
+            if nargin < 2
+                initial_path_metrics = zeros(length(self.states), 1);
+            end
             
-            path_metrics(:,1) = initial_path_metrics; % First state is the initial state k=-1
+            self.path_metrics = sparse(self.M^(self.L1+self.L2), self.K+1);
+            self.survivors = sparse(self.M^(self.L1+self.L2), self.K+1);
             
-            for k=0:self.K-1
-                next_path_metrics = zeros(length(self.states), 1);
-                next_survivors = zeros(length(self.states), 1);
-                for j=1:length(self.states)
-                    best_i = 0;
-                    best_path_metric = Inf;
-                    [~, is] = find(self.connections(j,:));
-                    for i=is
-                        previous_path_metric = path_metrics(i, (k-1)+2);
-                        if previous_path_metric == Inf; continue; end
-                        branch_metr_i_j = abs(rho(k+1) - self.received_samples(j, i))^2;
-                        next_path_metric = previous_path_metric + branch_metr_i_j;
-                        if next_path_metric < best_path_metric
-                            best_i = i;
-                            best_path_metric = next_path_metric;
-                        end
+            self.path_metrics(:,1) = initial_path_metrics; % First state is the initial state k=-1
+            self.full_trellis = -1;
+        end
+        
+        function detected_sym = one_iteration(self, rho_k)
+            next_path_metrics = zeros(length(self.states), 1);
+            next_survivors = zeros(length(self.states), 1);
+            for j=1:length(self.states)
+                best_i = 0;
+                best_path_metric = Inf;
+                [~, is] = find(self.connections(j,:));
+                for i=is
+                    previous_path_metric = self.path_metrics(i, self.full_trellis+2);
+                    if previous_path_metric == Inf; continue; end
+                    branch_metr_i_j = abs(rho_k - self.received_samples(j, i))^2;
+                    next_path_metric = previous_path_metric + branch_metr_i_j;
+                    if next_path_metric < best_path_metric
+                        best_i = i;
+                        best_path_metric = next_path_metric;
                     end
-                    next_path_metrics(j) = best_path_metric;
-                    next_survivors(j) = best_i;
                 end
-                path_metrics(:, k+2) = next_path_metrics;
-                survivors(:, k+2) = next_survivors;
+                next_path_metrics(j) = best_path_metric;
+                next_survivors(j) = best_i;
             end
+            self.path_metrics(:, (self.full_trellis+1)+2) = next_path_metrics;
+            self.survivors(:, (self.full_trellis+1)+2) = next_survivors;
+            self.full_trellis = self.full_trellis + 1;
             
-            % Detected state sequence
-            final_path_metrics = full(path_metrics(:, self.K+1));
-            [~, min_j] = min(final_path_metrics);
-            state_seq = zeros(self.K+1, self.L1+self.L2);
-            state_seq(self.K-1+2,:) = self.states(min_j,:);
-            k = self.K-1;
-            j = min_j;
-            while k > -1
-                previous_state_i = survivors(j, k+2);
-                previous_state = self.states(previous_state_i,:);
-                state_seq((k-1)+2,:) = previous_state;
-                k = k-1;
-                j = previous_state_i;
+            if self.full_trellis == self.K-1
+                % Detected state sequence
+                final_path_metrics = self.path_metrics(:, self.K+1);
+                [~, min_j] = min(final_path_metrics);
+                state_seq = zeros(self.K+1, self.L1+self.L2);
+                state_seq(self.K-1+2,:) = self.states(min_j,:);
+                k = self.K-1;
+                j = min_j;
+                while k > -1
+                    previous_state_i = self.survivors(j, k+2);
+                    previous_state = self.states(previous_state_i,:);
+                    state_seq((k-1)+2,:) = previous_state;
+                    k = k-1;
+                    j = previous_state_i;
+                end
+                
+                % Detected symbols
+                detected_syms = zeros(self.K, 1);
+                k = self.K-1;
+                while k >= 0
+                    detected_syms(k+1) = state_seq(k+2, self.L1+1);
+                    k = k-1;
+                end
+                detected_sym = detected_syms(1);
+                
+                % Clear oldest
+                self.path_metrics = self.path_metrics(:, 2:self.K+1);
+                self.survivors = self.survivors(:, 2:self.K+1);
+                self.full_trellis = self.full_trellis - 1;
+            else
+                detected_sym = NaN;
             end
-            
-            % Detected symbols
-            detected_syms = zeros(self.K, 1);
-            k = self.K-1;
-            while k >= 0
-                detected_syms(k+1) = state_seq(k+2, self.L1+1);
-                k = k-1;
+        end
+        
+        function detected_symbols = detect(self, rho)
+            detected_symbols = zeros(length(rho), 1);
+            for k=0:length(rho)-1
+                detected_symbols(k+1) = self.one_iteration(rho(k+1));
             end
         end
     end
