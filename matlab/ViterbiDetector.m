@@ -74,29 +74,18 @@ classdef ViterbiDetector < handle
             self.full_trellis = self.full_trellis + 1;
             
             if self.full_trellis == self.K-1
-                % Detected state sequence
                 final_path_metrics = self.path_metrics(:, self.K+1);
                 [~, min_j] = min(final_path_metrics);
-                state_seq = zeros(self.K+1, self.L1+self.L2);
-                state_seq(self.K-1+2,:) = self.states(min_j,:);
-                k = self.K-1;
+                
+                % Follow the survivors to k=0
                 j = min_j;
-                while k > -1
-                    previous_state_i = self.survivors(j, k+2);
-                    previous_state = self.states(previous_state_i,:);
-                    state_seq((k-1)+2,:) = previous_state;
+                k = self.K-1;
+                while k > 0
+                    j = self.survivors(j, k+2);
                     k = k-1;
-                    j = previous_state_i;
                 end
                 
-                % Detected symbols
-                detected_syms = zeros(self.K, 1);
-                k = self.K-1;
-                while k >= 0
-                    detected_syms(k+1) = state_seq(k+2, self.L1+1);
-                    k = k-1;
-                end
-                detected_sym = detected_syms(1);
+                detected_sym = self.states(j, self.L1+1);
                 
                 % Clear oldest
                 self.path_metrics = self.path_metrics(:, 2:self.K+1);
