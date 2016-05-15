@@ -50,27 +50,38 @@ classdef ViterbiDetector < handle
         end
         
         function detected_sym = one_iteration(self, rho_k)
-            next_path_metrics = zeros(length(self.states), 1);
-            next_survivors = zeros(length(self.states), 1);
+            next_path_metrics_j = [];
+            next_path_metrics_v = [];
+            
+            next_survivors_j = [];
+            next_survivors_v = [];
+            
             for j=1:length(self.states)
                 best_i = 0;
                 best_path_metric = Inf;
                 [~, is] = find(self.connections(j,:));
-                for i=is
-                    previous_path_metric = self.path_metrics(i, self.full_trellis+2);
+                previous_path_metrics = full(self.path_metrics(is, self.full_trellis+2));
+                received_samples = full(self.received_samples(j, is));
+                for ii=1:length(is)
+                    i = is(ii);
+                    previous_path_metric = previous_path_metrics(ii);
+                    received_sample = received_samples(ii);
                     if previous_path_metric == Inf; continue; end
-                    branch_metr_i_j = abs(rho_k - self.received_samples(j, i))^2;
+                    branch_metr_i_j = abs(rho_k - received_sample)^2;
                     next_path_metric = previous_path_metric + branch_metr_i_j;
                     if next_path_metric < best_path_metric
                         best_i = i;
                         best_path_metric = next_path_metric;
                     end
                 end
-                next_path_metrics(j) = best_path_metric;
-                next_survivors(j) = best_i;
+                next_path_metrics_j = [next_path_metrics_j; j];
+                next_path_metrics_v = [next_path_metrics_v; best_path_metric];
+                
+                next_survivors_j = [next_survivors_j; j];
+                next_survivors_v = [next_survivors_v; best_i];
             end
-            self.path_metrics(:, (self.full_trellis+1)+2) = next_path_metrics;
-            self.survivors(:, (self.full_trellis+1)+2) = next_survivors;
+            self.path_metrics(next_path_metrics_j, (self.full_trellis+1)+2) = next_path_metrics_v;
+            self.survivors(next_survivors_j, (self.full_trellis+1)+2) = next_survivors_v;
             self.full_trellis = self.full_trellis + 1;
             
             if self.full_trellis == self.K-1
