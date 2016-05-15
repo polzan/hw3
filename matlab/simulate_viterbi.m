@@ -11,7 +11,7 @@ trellis_depth = 30;
 L1 = 0; % No precursors
 L2 = M2; % Same postcursors of the DFE
 
-Nbits_w_transient = Nbits + 2*t0_sampled + 2*D;
+Nbits_w_transient = Nbits + 2*t0_sampled + 2*D + 2*(trellis_depth-1);
 
 % Generate a transmitted signal with random iid bits
 [rc, sc, a, bits, wc, sigma2_a, N0] = QPSKtransmitter_random(Nbits_w_transient, SNR);
@@ -31,32 +31,10 @@ psi = conv(qR_sampled, c);
 
 alphabet = [1+1j; 1-1j; -1-1j; -1+1j];
 vd = ViterbiDetector(alphabet, trellis_depth, L1, L2, psi, t0_sampled + D);
-
-% Run the viterbi algorithm on blocks of samples
-block_num = floor(length(y)/trellis_depth);
-last_block_length = mod(length(y), trellis_depth);
-
-detected_syms = [];
-initial_path_metrics = zeros(4^(L1+L2), 1); % Start with equal likelyhood for every state
-for i=0:block_num-1
-    rho_block = y(trellis_depth*i+(1:trellis_depth));
-    [detected_syms_block, final_path_metrics] = vd.detect_symbols(rho_block, initial_path_metrics);
-    detected_syms = [detected_syms; detected_syms_block];
-    initial_path_metrics = final_path_metrics;
-    % Decrease the values of the metrics
-    initial_path_metrics = initial_path_metrics - min(initial_path_metrics);
-end
-
-%Last block
-if last_block_length > 0
-    vd_last = ViterbiDetector(alphabet, last_block_length, L1, L2, psi, t0_sampled + D);
-    rho_last = y(trellis_depth*block_num + (1:last_block_length));
-    [detected_syms_last, final_path_metrics] = vd_last.detect_symbols(rho_last, initial_path_metrics);
-    detected_syms = [detected_syms; detected_syms_last];
-end
+detected_syms = vd.detect(y);
 
 % Check errors
-syms_tot_cut_first = detected_syms(t0_sampled+D+1:length(detected_syms)); % Cut the samples before the first symbol
+syms_tot_cut_first = detected_syms(t0_sampled+D+(trellis_depth-1)+1:length(detected_syms)); % Cut the samples before the first symbol
 sym_err_count = sum(syms_tot_cut_first ~= a(1:(Nbits/2)));
 Pe = sym_err_count / (Nbits/2);
 
