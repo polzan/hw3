@@ -110,6 +110,11 @@ classdef ViterbiDetector < handle
         function detected_symbols = detect(self, rho)
             detected_symbols = zeros(length(rho), 1);
             for k=0:length(rho)-1
+                % Every 5000 symbols shift back the path metrics
+                if mod(k, 5000) == 0
+                    min_pm = full(min(min(self.path_metrics)));
+                    self.path_metrics = self.path_metrics - min_pm;
+                end
                 detected_symbols(k+1) = self.one_iteration(rho(k+1));
             end
         end
