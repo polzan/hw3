@@ -1,6 +1,6 @@
 close all; clear all; clc;
 
-SNRs = linspace(8, 14, (14-8)/2); % every 0.5 dB
+SNRs = linspace(8, 14, 5); % odd number so it uses SNR=11
 
 % Symbol error bounds
 pe_bounds = zeros(length(SNRs), 2);
@@ -13,24 +13,25 @@ for i=1:length(SNRs)
 end
 
 % Pe vs SNR
-pes = zeros(length(SNRs), 2);
+pes = zeros(length(SNRs), 6);
 err_needed = 30;
-blocklength = 1e4;
+blocklength = 5e3;
 for i=1:length(SNRs)    
-    [~, pes(i, 1), tot_bits] = estimate_pbit(@simulate_le, SNRs(i), err_needed, blocklength);
-    %fprintf('LE Nbit = %d\n', tot_bits);
+    [~, pe_le(i), ~] = estimate_pbit(@simulate_le, SNRs(i), err_needed, blocklength);
+        
+    [~, pe_dfe(i), ~] = estimate_pbit(@simulate_dfe, SNRs(i), err_needed, blocklength);
+        
+    [~, pe_vit(i), ~] = estimate_pbit(@simulate_viterbi, SNRs(i), err_needed, blocklength);
     
-    [~, pes(i, 2), tot_bits] = estimate_pbit(@simulate_dfe, SNRs(i), err_needed, blocklength);
-    %fprintf('DFE Nbit = %d, errs = %d\n', tot_bits, tot_errs);
-    
-    [~, pes(i, 3), tot_bits] = estimate_pbit(@simulate_viterbi, SNRs(i), err_needed, blocklength);
-    
-    fprintf('.');
-    if mod(i, 5) == 0
-        fprintf('%d', i);
-    end
+%     fprintf('.');
+%     if mod(i, 5) == 0
+%         fprintf('%d', i);
+%     end
 end
-fprintf('\n');
+pes(:, 1) = pe_le;
+pes(:, 2) = pe_dfe;
+pes(:, 3) = pe_vit;
+% fprintf('\n');
 
 % Plots
 figure;
