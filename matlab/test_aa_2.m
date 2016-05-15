@@ -1,14 +1,14 @@
 close all;
 t0 = 20;
-M1 = 5;
-M2 = 0;
-D = 3;
+% M1 = 3;
+% M2 = 4;
+D = 1;
 t0_sampled = floor(t0/2);
-l_estim = 30*10^4 + ceil(t0_sampled/2 + D/2);
+l_estim = 30*1e4 + ceil(t0_sampled/2 + D/2);
 l_estim = l_estim + mod(l_estim,2);
 
 
-SNR = 11;
+% SNR = 11;
 SNR_lin = 10^(SNR/10);
 [rc, sc, a, bits, wc, sigma2_a, N0] = QPSKtransmitter_random(l_estim, SNR, 1e5, 1e8);
 
@@ -16,9 +16,9 @@ SNR_lin = 10^(SNR/10);
 
 [qc_b, qc_a, qc_length] = transmitter_tf();
 qc = impz(qc_b, qc_a, qc_length);
-gaa = fir1(20,0.8,'low');
+gaa = fir1(20,0.84,'low');
 rr = filter(gaa, 1, rc);
-rr_sampled = downsample(rr, 2, mod(t0,2));
+rr_sampled = downsample(rr, 2, 0);
 % figure;
 % subplot(1,2,1);
 % stem((-length(gm)+1:0) + t0, gm);
@@ -48,36 +48,33 @@ qR = conv(qc, gaa);
 
 
 
-
-
 % equalizer = dfe(M1, M2, rls(0.3));
 % %equalizer.RefTap = D;
 % y = equalize(equalizer, rr_sampled);
 
-[c, b] = build_dfe_filters_T2(qc, gaa, t0, sigma2_a, N0, 2*D, M1, M2);
+[c, b] = build_dfe_filters_T2(qc, gaa, t0, sigma2_a, N0, D, M1, M2);
 
-[dec_sym_dfe, y] = dfe_filtering(c, b, rr_sampled, 2*D);
+[dec_sym_dfe, y] = dfe_filtering_2(c, b, rr_sampled, D);
 
-y = downsample(y,2,1);
 
 % loop_tf_b = c;
 % loop_tf_a = -b;
 % loop_tf_a(1) = loop_tf_a(1) + 1;
 % figure;
 % impz(loop_tf_b, loop_tf_a);
-
+% 
 % y = filter(loop_tf_b, loop_tf_a, rr_sampled);
 
 % figure;
 % stem(c);
 
 % figure;
-qR_sampled = downsample(qR, 2, mod(t0, 4));
+qR_sampled = downsample(qR, 2, 0);
 psi = conv(c, qR_sampled);
 % stem(psi);
 
 %rr_syms_only = rr_sampled(t0_sampled+1:length(rr_sampled));
-rr_syms_only = y(t0_sampled+D+1:length(y));
+rr_syms_only = y(t0_sampled/2+1+D:length(y));
 [dec_bits, dec_syms] = QPSKdemodulator(rr_syms_only);
 % 
 % figure;
@@ -98,12 +95,12 @@ fprintf('Pbit %f\n', Pbit);
 % hold on;
 % stem(c);
 % %stem(b);
-
-x = [(1+1j) .* ones(1000, 1); (1-1j).*ones(1000,1)];
-x = [x;x];
-
-y = dfe_filtering(c,b,x,D);
 % 
+% x = [(1+1j) .* ones(1000, 1); (1-1j).*ones(1000,1)];
+% x = [x;x];
+% 
+% y = dfe_filtering(c,b,x,D);
+% % 
 % figure;
 % hold on;
 % stem(imag(x));

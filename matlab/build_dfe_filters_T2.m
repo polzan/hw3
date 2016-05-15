@@ -1,6 +1,6 @@
 function [c,b] = build_dfe_filters_T2(qc, gm, t0, sigma2_a, N0, D, M1, M2)
 h_T_Q = conv(qc, gm);
-h = downsample(h_T_Q, 2, mod(t0, 2));
+h = downsample(h_T_Q, 2, 0);
 t0_sampled = floor(t0/2);
 N1 = t0_sampled;
 N2 = length(h)-1 - t0_sampled;
@@ -49,8 +49,9 @@ if M2 == 0
     b = [0];
 else
     psi = conv(h, c);
+    psi = downsample(psi,2,0);
     b = zeros(M2+1, 1);
-    b((1:M2)+1)= -psi((1:2:M2)+1+t0_sampled+D);
+    b((1:M2)+1)= -psi((1:M2)+t0_sampled/2+2*D+1);
     b = b(2:M2+1);
 end
 end
