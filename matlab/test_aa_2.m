@@ -1,14 +1,14 @@
 close all;
-t0 = 20;
-% M1 = 3;
-% M2 = 4;
+t0 = 30;
+M1 = 3;
+M2 = 2;
 D = 1;
 t0_sampled = floor(t0/2);
-l_estim = 30*1e4 + ceil(t0_sampled/2 + D/2);
+l_estim = 30*1e3 + ceil(t0_sampled/2 + D/2);
 l_estim = l_estim + mod(l_estim,2);
 
 
-% SNR = 11;
+SNR = 11;
 SNR_lin = 10^(SNR/10);
 [rc, sc, a, bits, wc, sigma2_a, N0] = QPSKtransmitter_random(l_estim, SNR, 1e5, 1e8);
 
@@ -16,9 +16,9 @@ SNR_lin = 10^(SNR/10);
 
 [qc_b, qc_a, qc_length] = transmitter_tf();
 qc = impz(qc_b, qc_a, qc_length);
-gaa = fir1(20,0.84,'low');
+gaa = fir1(40,0.7,'low');
 rr = filter(gaa, 1, rc);
-rr_sampled = downsample(rr, 2, 0);
+rr_sampled = downsample(rr, 2, mod(t0,2));
 % figure;
 % subplot(1,2,1);
 % stem((-length(gm)+1:0) + t0, gm);
@@ -69,12 +69,12 @@ qR = conv(qc, gaa);
 % stem(c);
 
 % figure;
-qR_sampled = downsample(qR, 2, 0);
-psi = conv(c, qR_sampled);
+qR_sampled = downsample(qR, 2, mod(t0_sampled,2));
+% psi = conv(c, qR);
 % stem(psi);
 
 %rr_syms_only = rr_sampled(t0_sampled+1:length(rr_sampled));
-rr_syms_only = y(t0_sampled/2+1+D:length(y));
+rr_syms_only = y(t0_sampled/2+D+1:length(y));
 [dec_bits, dec_syms] = QPSKdemodulator(rr_syms_only);
 % 
 % figure;

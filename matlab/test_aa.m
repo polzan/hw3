@@ -1,14 +1,14 @@
 close all;
 t0 = 16;
-%  M1 = 2;
-%  M2 = 4;
+  M1 = 2;
+  M2 = 4;
 D = 1;
 t0_sampled = floor(t0/4);
 l_estim = 30*10^4 + ceil(t0_sampled/2 + D/2);
 l_estim = l_estim + mod(l_estim,2);
 
 % 
-%  SNR = 11;
+SNR = 11;
 SNR_lin = 10^(SNR/10);
 [rc, sc, a, bits, wc, sigma2_a, N0] = QPSKtransmitter_random(l_estim, SNR, 1e5, 1e8);
 
@@ -16,7 +16,7 @@ SNR_lin = 10^(SNR/10);
 
 [qc_b, qc_a, qc_length] = transmitter_tf();
 qc = impz(qc_b, qc_a, qc_length);
-gaa = fir1(10,0.4,'low');
+gaa = fir1(10,0.35,'low');
 rr = filter(gaa, 1, rc);
 rr_sampled = downsample(rr, 4, mod(t0,4));
 % figure;
