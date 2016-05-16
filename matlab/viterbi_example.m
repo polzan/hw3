@@ -4,16 +4,17 @@ clc;
 
 alphabet = [-1,1];
 
-K = 50;
-L1 = 1;
-L2 = 3;
+K = 20;
+L1 = 0;
+L2 = 2;
 
-psi = [0.75; 0.01];
+psi = 1;
 D = 0;
 rng(5);
-a_tx = round(rand(1e3, 1)) .* 2 - 1;
+a_tx = round(rand(1e4, 1)) .* 2 - 1;
+w = sqrt(2/10^(11/10)) .* (randn(length(a_tx), 1) + 1j .* randn(length(a_tx), 1));
 
-rho = filter(psi, 1, a_tx);
+rho = filter(psi, 1, a_tx)+w;
 
 detector = ViterbiDetector(alphabet, K, L1, L2, psi, D);
 
@@ -24,7 +25,7 @@ output_translation = K-1;
 a_cut_first = a(output_translation+1:length(a));
 
 sym_err_count = sum(a_cut_first ~= a_tx(1:length(a_cut_first)));
-Pe = sym_err_count / K;
+Pe = sym_err_count / length(a_cut_first);
 
 fprintf('Pe = %f on one trellis depth of %d\n', Pe, K);
 

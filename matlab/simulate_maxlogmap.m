@@ -7,10 +7,10 @@ M2 = 3;
 D = 1;
 
 % MaxLogMap params
-trellis_depth = 30;
+trellis_depth = 20;
 L1 = 0; % No precursors
 L2 = M2; % Same postcursors of the DFE
-max_input_length = 300;
+max_input_length = 600;
 
 Nbits_w_transient = Nbits + 2*t0_sampled + 2*D + 4*(trellis_depth-1);
 
