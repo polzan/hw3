@@ -1,0 +1,6 @@
+#!/bin/bash
+#$ -cwd -m ea 
+
+pushd matlab
+matlab -nodesktop -nosplash -r simulate_blocks
+popd
