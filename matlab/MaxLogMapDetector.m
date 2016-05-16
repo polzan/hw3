@@ -17,12 +17,8 @@ classdef MaxLogMapDetector < handle
         connections; % sigma_j <-> sigma_i
         received_samples; % u_k = f(sigma_j, sigma_i)
         
-        %path_metrics; % forward metrics (-1 .. K_d -1)
-        %survivors; % survivors of the forward metrics
-        %full_trellis; % completed columns of the trellis diagram
-        
-        %rho_cache; % received rho(0..K_d-1) needed for the backward procedure
-        %ch_transition_metrics;
+        last_forward_metrics;
+        initial_backward_metrics;
     end
     
     methods
@@ -43,7 +39,7 @@ classdef MaxLogMapDetector < handle
             self.build_all_connections();
             self.build_received_samples();
             
-            %self.reset();
+            self.reset();
         end
         
         function reset(self, initial_path_metrics, final_path_metrics)
@@ -53,15 +49,8 @@ classdef MaxLogMapDetector < handle
             if nargin < 3
                 final_path_metrics = zeros(length(self.states), 1);
             end
-            
-            self.path_metrics = sparse(self.M^(self.L1+self.L2), self.Kd+1); % k=-1..K_d-1
-            self.survivors = sparse(self.M^(self.L1+self.L2), self.Kd+1); % k=-1..K_d-1
-            self.rho_cache = zeros(1, self.Kd); % k=0..K_d-1
-            %self.ch_transition_metrics = sparse(self.M^(self.L1+self.L2), self.M^(self.L1+self.L2), self.K+1); % k=0..K
-            
-            self.path_metrics(:,1) = initial_path_metrics; % First state is the initial state k=-1
-            self.full_trellis = -1;
-            self.final_backward_metrics = final_path_metrics;
+            self.initial_backward_metrics = final_path_metrics;
+            self.last_forward_metrics = initial_path_metrics;
         end
         
         function detected_symbols = detect(self, rho)
@@ -95,16 +84,15 @@ classdef MaxLogMapDetector < handle
             %             end
         end
         
-        function [detected_symbols, detected_symbols_good] = detect_block(self, rho)
-            initial_forward_metrics = zeros(self.state_count, 1);
-            initial_backward_metrics = zeros(self.state_count, 1);
-            fm = self.build_forward_metric(rho, initial_forward_metrics);
-            bm = self.build_backward_metric(rho, initial_backward_metrics);
+        function [detected_symbols, detected_symbols_good] = detect_block(self, rho)            
+            fm = self.build_forward_metric(rho, self.last_forward_metrics);
+            bm = self.build_backward_metric(rho, self.initial_backward_metrics);
             
-            fm_good = fm(:, (self.Kd-1:length(rho)-self.Kd+1)+2);
-            bm_good = bm(:, (self.Kd-1:length(rho)-self.Kd+1)+1);
+            fm_good = fm(:, (self.Kd-1:length(rho)-1-self.Kd+1)+2);
+            bm_good = bm(:, (self.Kd-1:length(rho)-1-self.Kd+1)+1);
             state_metric = fm_good + bm_good;
             
+            self.last_forward_metrics = fm(:,length(rho)-1 - self.Kd+1 + 2);
             
             detected_symbols_good = zeros(length(rho)-2*(self.Kd-1), 1);
             for l=1:length(rho)-2*(self.Kd-1)
@@ -133,7 +121,7 @@ classdef MaxLogMapDetector < handle
             Kin = length(rho);
             fm = sparse(self.state_count, Kin+1); % k=-1..Kin-1
             fm(:,1) = initial_forward_metrics; % First state is the initial state k=-1
-            for k=0:Kin-1 - self.Kd+1 % Skip the last Kd -> not used
+            for k=0:Kin-1 - self.Kd+1 % Skip the last Kd-1 -> not used
                 next_path_metrics_j = [];
                 next_path_metrics_v = [];
                 for j=1:self.state_count
