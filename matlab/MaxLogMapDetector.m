@@ -3,6 +3,7 @@ classdef MaxLogMapDetector < handle
         alphabet;
         M;
         Kd;
+        Kin;
         psi;
         psi_delay;
         L1;
@@ -25,10 +26,11 @@ classdef MaxLogMapDetector < handle
     end
     
     methods
-        function self = MaxLogMapDetector(alphabet, trellis_depth, L1, L2, psi, psi_delay)
+        function self = MaxLogMapDetector(alphabet, trellis_depth, max_input_length, L1, L2, psi, psi_delay)
             self.alphabet = alphabet;
             self.M = length(alphabet);
             self.Kd = trellis_depth;
+            self.Kin = max_input_length;
             self.psi = psi;
             self.psi_delay = psi_delay;
             self.L1 = L1;
@@ -62,49 +64,38 @@ classdef MaxLogMapDetector < handle
             self.final_backward_metrics = final_path_metrics;
         end
         
-        function detected_sym = one_iteration(self, rho_k)
-            self.rho_cache((self.full_trellis+1)+1) = rho_k;
-            %self.update_ch_transition_metrics();
-            self.update_forward_metric(rho_k);
-            
-            
-            if self.full_trellis == self.Kd-1
-                final_path_metrics = self.path_metrics(:, self.Kd+1);
-                [~, min_j] = min(final_path_metrics);
-                
-                % Follow the survivors to k=0
-                j = min_j;
-                k = self.Kd-1;
-                while k > 0
-                    j = self.survivors(j, k+2);
-                    k = k-1;
-                end
-                
-                detected_sym = self.states(j, self.L1+1);
-                
-                % Clear oldest
-                self.path_metrics = self.path_metrics(:, 2:self.Kd+1);
-                self.survivors = self.survivors(:, 2:self.Kd+1);
-                self.rho_cache = self.rho_cache(1, 2:self.Kd);
-                self.full_trellis = self.full_trellis - 1;
-            else
-                detected_sym = NaN;
-            end
-        end
-        
         function detected_symbols = detect(self, rho)
             detected_symbols = zeros(length(rho), 1);
-            for k=0:length(rho)-1
-                % Every 5000 symbols shift up the path metrics
-                if mod(k, 5000) == 0
-                    max_pm = full(max(max(self.path_metrics)));
-                    self.path_metrics = self.path_metrics + max_pm;
-                end
-                detected_symbols(k+1) = self.one_iteration(rho(k+1));
+            detected_symbols(1:self.Kd-1) = NaN .* ones(self.Kd-1, 1);
+            detected_symbols(length(rho)-self.Kd+2:length(rho)) = NaN .* ones(self.Kd-1, 1);
+            next_sym = self.Kd-1;
+            next_rho = 0;
+            while next_rho + self.Kin < length(rho)
+                rho_chunk = rho((0:self.Kin-1)+next_rho+1);
+                [~, good_sym_chunk] = self.detect_block(rho_chunk);
+                detected_symbols(next_sym+1:next_sym+length(good_sym_chunk)) = good_sym_chunk;
+                next_rho = next_rho + self.Kin - 2*(self.Kd-1);
+                next_sym = next_sym + length(good_sym_chunk);
             end
+            
+            if next_rho < length(rho)
+                warning('Using less symbols in the final chunk');
+                rho_chunk = rho(next_rho+1:length(rho));
+                [~, good_sym_chunk] = self.detect_block(rho_chunk);
+                detected_symbols(next_sym+1:next_sym+length(good_sym_chunk)) = good_sym_chunk;
+            end
+            
+            %             for k=0:length(rho)-1
+            %                 % Every 5000 symbols shift up the path metrics
+            %                 if mod(k, 5000) == 0
+            %                     max_pm = full(max(max(self.path_metrics)));
+            %                     self.path_metrics = self.path_metrics + max_pm;
+            %                 end
+            %                 detected_symbols(k+1) = self.one_iteration(rho(k+1));
+            %             end
         end
         
-        function detected_symbols = detect_block(self, rho)
+        function [detected_symbols, detected_symbols_good] = detect_block(self, rho)
             initial_forward_metrics = zeros(self.state_count, 1);
             initial_backward_metrics = zeros(self.state_count, 1);
             fm = self.build_forward_metric(rho, initial_forward_metrics);
