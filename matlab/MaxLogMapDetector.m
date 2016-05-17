@@ -84,7 +84,7 @@ classdef MaxLogMapDetector < handle
             %             end
         end
         
-        function [detected_symbols, detected_symbols_good] = detect_block(self, rho)            
+        function [detected_symbols, detected_symbols_good] = detect_block(self, rho)
             fm = self.build_forward_metric(rho, self.last_forward_metrics);
             bm = self.build_backward_metric(rho, self.initial_backward_metrics);
             
@@ -158,14 +158,18 @@ classdef MaxLogMapDetector < handle
                 next_path_metrics_v = [];
                 for i=1:self.state_count
                     best_path_metric = -Inf;
-                    [js, ~] = find(self.connections(:,i));                    
+                    [js, ~] = find(self.connections(:,i));
                     previous_path_metrics = full(bm(js, (k+1)+1));
-                    received_samples = full(self.received_samples(js, i));
-                    branch_metrics = -abs(rho(k+1) .* ones(length(received_samples),1) - received_samples).^2;
+                    next_received_samples = full(self.received_samples(js, i));
+                    if k == Kin-1
+                        branch_metrics = zeros(length(next_received_samples), 1);
+                    else
+                        branch_metrics = -abs(rho((k+1)+1) .* ones(length(next_received_samples),1) - next_received_samples).^2;
+                    end
                     for jj=1:length(js)
                         j = js(jj);
                         previous_path_metric = previous_path_metrics(jj);
-                        received_sample = received_samples(jj);
+                        %received_sample = next_received_samples(jj);
                         if previous_path_metric == -Inf; continue; end
                         branch_metr_i_j = branch_metrics(jj);
                         next_path_metric = previous_path_metric + branch_metr_i_j;
