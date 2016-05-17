@@ -68,7 +68,7 @@ classdef MaxLogMapDetector < handle
             end
             
             if next_rho < length(rho)
-                warning('Using less symbols in the final chunk');
+                %warning('Using less symbols in the final chunk');
                 rho_chunk = rho(next_rho+1:length(rho));
                 [~, good_sym_chunk] = self.detect_block(rho_chunk);
                 detected_symbols(next_sym+1:next_sym+length(good_sym_chunk)) = good_sym_chunk;
@@ -129,12 +129,13 @@ classdef MaxLogMapDetector < handle
                     [~, is] = find(self.connections(j,:));
                     previous_path_metrics = full(fm(is, (k-1)+2));
                     received_samples = full(self.received_samples(j, is));
+                    branch_metrics = -abs(rho(k+1) .* ones(1, length(received_samples)) - received_samples).^2;
                     for ii=1:length(is)
                         i = is(ii);
                         previous_path_metric = previous_path_metrics(ii);
                         received_sample = received_samples(ii);
                         if previous_path_metric == -Inf; continue; end
-                        branch_metr_i_j = -abs(rho(k+1) - received_sample)^2; % <- optimize by precomputing c_k(j|i) ?
+                        branch_metr_i_j = branch_metrics(ii); % <- optimize by precomputing c_k(j|i) ?
                         next_path_metric = previous_path_metric + branch_metr_i_j;
                         if next_path_metric > best_path_metric
                             best_path_metric = next_path_metric;
@@ -153,28 +154,29 @@ classdef MaxLogMapDetector < handle
             bm(:,Kin+1) = initial_backward_metrics; % First state is the last state k=Kin
             k = Kin-1;
             while k >= 0 + self.Kd - 1 % First useful metrics at k=Kd-1
-                next_path_metrics_j = [];
+                next_path_metrics_i = [];
                 next_path_metrics_v = [];
-                for j=1:self.state_count
+                for i=1:self.state_count
                     best_path_metric = -Inf;
-                    [~, is] = find(self.connections(j,:));
-                    previous_path_metrics = full(bm(is, (k+1)+1));
-                    received_samples = full(self.received_samples(j, is));
-                    for ii=1:length(is)
-                        i = is(ii);
-                        previous_path_metric = previous_path_metrics(ii);
-                        received_sample = received_samples(ii);
+                    [js, ~] = find(self.connections(:,i));                    
+                    previous_path_metrics = full(bm(js, (k+1)+1));
+                    received_samples = full(self.received_samples(js, i));
+                    branch_metrics = -abs(rho(k+1) .* ones(length(received_samples),1) - received_samples).^2;
+                    for jj=1:length(js)
+                        j = js(jj);
+                        previous_path_metric = previous_path_metrics(jj);
+                        received_sample = received_samples(jj);
                         if previous_path_metric == -Inf; continue; end
-                        branch_metr_i_j = -abs(rho(k+1) - received_sample)^2; % <- optimize by precomputing c_k(j|i) ?
+                        branch_metr_i_j = branch_metrics(jj);
                         next_path_metric = previous_path_metric + branch_metr_i_j;
                         if next_path_metric > best_path_metric
                             best_path_metric = next_path_metric;
                         end
                     end
-                    next_path_metrics_j = [next_path_metrics_j; j];
+                    next_path_metrics_i = [next_path_metrics_i; i];
                     next_path_metrics_v = [next_path_metrics_v; best_path_metric];
                 end
-                bm(next_path_metrics_j, k+1) = next_path_metrics_v;
+                bm(next_path_metrics_i, k+1) = next_path_metrics_v;
                 k = k-1;
             end
         end
