@@ -58,5 +58,51 @@
   upquote=true,
 }
 \maketitle
-\section*{Problem 1}
+\section*{Transmitter}
+In the transmitter we generate the sequence of symbols $a_k$ by
+producing a uniformly distributed sequnce of bits twice as long and
+mapping each pair of bits to a symbol of the QPSK constellation $
+\mathcal{A} = \{(1+j),(1-j),(-1-j),(-1+j)\}$. Then we upsample $a_k$
+by a factor of 4 and filter it using the transfer function
+\begin{equation}
+  Q_c(z) = \frac{\beta z^{-10}}{1 - \alpha z^{-1}}
+\end{equation}
+that models the {\color{red} combination of the modulator filter and
+  the channel}.  Since we will need it to have a finite length,
+because the matched filter would otherwise not be causal, we truncate
+its impulse response at $n=34$ (when $n > 34$, $q_c(nT/4) \leq
+5\cdot10^{-5}$). In Fig.~\ref{plot:qc} we plot $q_c$ and in
+Fig.~\ref{plot:Qf} there is the corresponding frequency response.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{matlab/plot_qc}
+  \caption{Impulse response of the combination of the modulator and
+    the channel}
+  \label{plot:qc}
+\end{figure}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{matlab/plot_Qf}
+  \caption{Frequency response of the combination of the modulator and
+    the channel}
+  \label{plot:Qf}
+\end{figure}
+
+We then add {\color{red} the channel noise} $w_c(nT/4)$, assumed to be
+a complex gaussian with power spectral density $\mathcal{P}_{w_c}(f) =
+N_0$ in the band of the signal $S_c(nT/4)$. The noise power and PSD
+can be obtained from the SNR:
+\begin{align}
+  \Gamma &= \frac{\sigma^2_a E_{q_c}}{\sigma^2_{w_c}} \\
+  N_0 &= \sigma^2_{w_c}\frac{T}{4}
+\end{align}
+where $E_{q_c}$ is the energy of the filter $q_c$ and the power of the
+symbol sequence is $\sigma^2_a = 2$.
+
+The signal that gets to each one of the following receivers is
+$r_c(nT/4) = S_c(nT/4) + w_c(nT/4)$.
+\section*{Viterbi}
+
+\section*{MaxLogMAP}
+
 \end{document}
