@@ -23,7 +23,7 @@ N0 = sigma2_wc * T_Q;
 
 % noise
 rng_oldstate = rng(noise_seed);
-wc = sqrt(sigma2_wc).*(randn(length(a_up), 1) + 1j*(randn(length(a_up), 1)));
+wc = sqrt(sigma2_wc/2).*(randn(length(a_up), 1) + 1j*(randn(length(a_up), 1)));
 rng(rng_oldstate);
 
 %received signal
