@@ -7,7 +7,7 @@ M2 = 3;
 D = 1;
 
 % MaxLogMap params
-trellis_depth = 20;
+trellis_depth = 30;
 L1 = 0; % No precursors
 L2 = M2; % Same postcursors of the DFE
 max_input_length = 600;
