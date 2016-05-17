@@ -42,8 +42,8 @@ classdef ViterbiDetector < handle
                 initial_path_metrics = zeros(length(self.states), 1);
             end
             
-            self.path_metrics = sparse(self.M^(self.L1+self.L2), self.K+1);
-            self.survivors = sparse(self.M^(self.L1+self.L2), self.K+1);
+            self.path_metrics = zeros(self.M^(self.L1+self.L2), self.K+1);
+            self.survivors = zeros(self.M^(self.L1+self.L2), self.K+1);
             
             self.path_metrics(:,1) = initial_path_metrics; % First state is the initial state k=-1
             self.full_trellis = -1;
@@ -60,8 +60,8 @@ classdef ViterbiDetector < handle
                 best_i = 0;
                 best_path_metric = Inf;
                 [~, is] = find(self.connections(j,:));
-                previous_path_metrics = full(self.path_metrics(is, self.full_trellis+2));
-                received_samples = full(self.received_samples(j, is));
+                previous_path_metrics = self.path_metrics(is, self.full_trellis+2);
+                received_samples = self.received_samples(j, is);
                 branch_metrics = abs(rho_k .* ones(1, length(received_samples)) - received_samples).^2;
                 for ii=1:length(is)
                     i = is(ii);
@@ -113,7 +113,7 @@ classdef ViterbiDetector < handle
             for k=0:length(rho)-1
                 % Every 5000 symbols shift back the path metrics
                 if mod(k, 5000) == 0
-                    min_pm = full(min(min(self.path_metrics)));
+                    min_pm = min(min(self.path_metrics));
                     self.path_metrics = self.path_metrics - min_pm;
                 end
                 detected_symbols(k+1) = self.one_iteration(rho(k+1));
@@ -160,7 +160,7 @@ classdef ViterbiDetector < handle
                     end
                 end
             end
-            self.connections = sparse(js, is, ones(length(is), 1));
+            self.connections = full(sparse(js, is, ones(length(is), 1)));
         end
         
         function build_received_samples(self)
@@ -185,7 +185,7 @@ classdef ViterbiDetector < handle
                 a = [sigma_j(1,:), sigma_i(1,length(sigma_i))];
                 u(n) = a * eta;
             end
-            self.received_samples = sparse(js, is, u);
+            self.received_samples = full(sparse(js, is, u));
         end
     end
 end
