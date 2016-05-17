@@ -58,7 +58,7 @@
   upquote=true,
 }
 \maketitle
-\section*{Transmitter}
+\section{Transmitter}
 In the transmitter we generate the sequence of symbols $a_k$ by
 producing a uniformly distributed sequnce of bits twice as long and
 mapping each pair of bits to a symbol of the QPSK constellation $
@@ -101,8 +101,62 @@ symbol sequence is $\sigma^2_a = 2$.
 
 The signal that gets to each one of the following receivers is
 $r_c(nT/4) = S_c(nT/4) + w_c(nT/4)$.
-\section*{Viterbi}
+\section{Viterbi}
+In the Viterbi receiver we use the same filter $g_M$ of
+sections~\ref{sec:le}~and~\ref{sec:dfe}, matched to the response of
+the transmitter and the channel $q_c$, {\color{red} to maximize the
+  SNR before the equalizer} and we also sample in the same way
+starting at $t_0 = \overline{t_0}\frac{T}{4} = 33\frac{T}{4}$ with
+period $T$.
 
-\section*{MaxLogMAP}
+Before applying the Viterbi algorithm we design a filter $c$ with the
+method based on the Wiener filter already used in
+section~\ref{sec:dfe}:
+\begin{align}
+  \vec{p}_p &= \sigma^2_ah^*_{D-p} \\
+  R_{p,q} &= \sigma^2_a\left( \sum_{j=-N_1}^{N_2}h_jh^*_{j-(p-q)} - \sum_{j=1}^{M_2}h_{j+D-q}h^*_{j+D-p} \right) + r_{\tilde{w}}(p-q) \\
+    \vec{c} &= R^{-1} \vec{p}
+\end{align}
+where $h = q_c * g_M$ and $r_{\tilde{w}}(n) = N_0 r_{g_M}(nT)$. The
+parameters that we choose are the same as in section \ref{sec:dfe}:
+$M1 = M2 = 3$, $D=1$ {\color{red} and $N1 = N2 = 8$ }.
+
+The overall system response before the Viterbi detector is $\psi(kT) =
+(q_c * g_M * c)_{(kT)}$ and it is shown in Fig.~\ref{plot:psi_dfe}.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{matlab/plot_psi_dfe}
+  \caption{Overall system response $\psi(kT)$}
+  \label{plot:psi_dfe}
+\end{figure}
+We can see that the filter $c$ has eliminated the effect of the
+precursors, so the Viterbi algorithm only has to take into account the
+three postcursors of $\psi$ and its parameters will be $L_1 = 0$, $L_2
+= 3$ and $D=1$ because the peak is shifted by $1T$.
+
+To implement the Viterbi algorithm we first define the states
+$\vec{s}_k = (a_k,a_{k-1}, a_{k-2}) \in \mathcal{S}$ that can be any
+combination of three symbols taken from the constellation
+$\mathcal{A}$, then we precompute:
+\begin{itemize}
+  \item if it is possible to have a transition from a state
+    $\vec{s}_{k-1} = \vec{\sigma}_i$ to the successive state
+    $\vec{s}_{k} = \vec{\sigma}_j$, for every pair of states
+    $\vec{\sigma}_j$, $\vec{\sigma}_i$    
+\item the value of
+  \begin{equation}
+    u_k = f(\vec{\sigma}_j, \vec{\sigma}_i) =
+    \sum_{n=-L_1}^{L_2}\psi_{n+D}a_{k-n}
+  \end{equation} wherever a transition from $\vec{\sigma}_i$ to $\vec{\sigma}_j$ is
+  possible.
+\end{itemize}
+Then we initialize the path metric values at state $k=-1$
+\begin{equation}
+  \Gamma_{k-1}(\vec{s}_{k-1} = \vec{\sigma}_j) = 0 \qquad \forall j
+\end{equation}
+because we have no information on the state of the system, so each one
+is equally likely. From this we proceed iteratively, calculating at
+each iteration
+\section{MaxLogMAP}
 
 \end{document}

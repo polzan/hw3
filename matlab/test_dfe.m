@@ -1,8 +1,8 @@
 close all;
 
 t0 = 33;
-M1 = 4;
-M2 = 4;
+M1 = 3;
+M2 = 3;
 D = 1;
 
 l_estim = 1e4 + ceil(floor(t0/4)*2+ D*2);
@@ -128,3 +128,10 @@ scatter(real(a), imag(a));
 
 Pe = 4*(1-1/sqrt(4))*(1 - normcdf(sqrt(3/(4-1)*SNR_lin),0,1));
 Pbit_upper_bound = 1/log2(4) * Pe;
+
+% Plot of the psi
+figure;
+stem((0:length(psi)-1)-t0_sampled, psi);
+xlabel('k');
+ylabel('psi(kT)');
+print('plot_psi_dfe', '-depsc');
