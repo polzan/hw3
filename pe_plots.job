@@ -2,5 +2,5 @@
 #$ -cwd -m ea 
 
 pushd matlab
-matlab -nodesktop -nosplash -r simulate_blocks
+matlab -nodesktop -nosplash -r run_simulation,plot_results
 popd
