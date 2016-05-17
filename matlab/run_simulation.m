@@ -3,7 +3,9 @@ close all; clear all; clc;
 Nsyms = 3e5;
 Nbits = 2*Nsyms;
 
-SNRs = linspace(8, 14, 19);
+% Use more points where they are useful
+SNRs = linspace(8, 12, 20);
+SNRs = [SNRs, 13, 14];
 % Always compute for SNR=11
 if isempty(find(SNRs == 11, 1))
     warning('Add SNR = 11 dB. The plots will have one more point');
