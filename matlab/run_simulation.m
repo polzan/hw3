@@ -1,6 +1,6 @@
 close all; clear all; clc;
 
-Nsyms = 1000%3e5;
+Nsyms = 3e5;
 Nbits = 2*Nsyms;
 
 SNRs = linspace(8, 14, 19);

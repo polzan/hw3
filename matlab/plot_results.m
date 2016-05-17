@@ -21,4 +21,4 @@ grid on;
 xlim([8, 14]);
 ylim([1e-4, 1e-1]);
 
-print('pe_plot', -'depsc');
+print('pe_plot', '-depsc');
