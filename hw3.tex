@@ -37,6 +37,7 @@
 \newcommand{\ProbC}[2]{\operatorname{P}\left[#1\middle|#2\right]}
 \newcommand{\ind}[1]{\operatorname{\mathbbm{1}}\left\{#1\right\}}
 \DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
 \newcommand{\distr}[0]{\sim}
 \newcommand{\unif}[1]{\mathcal{U}_{#1}}
 
@@ -105,6 +106,7 @@ symbol sequence is $\sigma^2_a = 2$.
 The signal that gets to each one of the following receivers is
 $r_c(nT/4) = S_c(nT/4) + w_c(nT/4)$.
 \section{Viterbi}
+\label{sec:viterbi}
 In the Viterbi receiver we use the same filter $g_M(nT/4) = q_c^*((\overline{t_0} - n)T/4)$ of
 sections~\ref{sec:le}~and~\ref{sec:dfe}, matched to the response of
 the transmitter and the channel $q_c$, {\color{red} to maximize the
@@ -134,8 +136,8 @@ The overall system response before the Viterbi detector is $\psi(kT) =
 \end{figure}
 We can see that the filter $c$ has eliminated the effect of the
 precursors, so the Viterbi algorithm only has to take into account the
-three postcursors of $\psi$: its parameters will be $L_1 = 0$, $L_2 =
-M2 = 3$ and, since the peak is shifted by $1T$, we set $D=1$.
+three postcursors of $\psi((n+D)T)$ and its parameters for the state
+will be $L_1 = 0$, $L_2 = M2 = 3$.
 
 To implement the Viterbi algorithm we first define the states
 \begin{equation}
@@ -177,7 +179,7 @@ we compute for each state $\sigma_j$:
   \item the path metric that we assign to state $\vsigma_j$ in the
     current iteration $k$
     \begin{equation}
-      \Gamma(\vec{s}_k = \vec{\sigma}_j) = \min_{\vsigma_i} \Gamma(\vec{s}_{k-1} = \vec{\sigma}_i) + \abs{\rho_k - u_k}^2
+      \Gamma(\vec{s}_k = \vec{\sigma}_j) = \min_{\vsigma_i} \left[ \Gamma(\vec{s}_{k-1} = \vec{\sigma}_i) + \abs{\rho_k - u_k}^2 \right]
     \end{equation}
     and we also store the state that minimizes the path metric,
     ${\vsigma_i}_{opt}$, in the survivor sequence
@@ -210,7 +212,60 @@ samples by subtracting the smallest value from all the others.
 
 As can also be seen in Fig.~\ref{plot:pe_all}, with a SNR of 11 dB we
 get a symbol error probability $P_e = 3.77 \cdot 10^{-4}$.
-\section{MaxLogMAP}
+\section{Max-Log-MAP}
+In the Max-Log-Map receiver we use the same receiver structure and the
+same parameters $t_0 = 33\frac{T}{4}$, $M1 = M2 = 3$, $D=1$ of
+section~\ref{sec:viterbi} so the overall system response $\psi(kT)$ is
+the same one of Fig.~\ref{plot:psi_dfe} and we set the same state
+length used in the previous case: $L_1 = 0$, $L_2 = M_2 = 3$.
+
+The state used in this algorithm is
+\begin{equation}
+  \vec{s}_k = (a_k,a_{k-1}, a_{k-2}) \in \mathcal{S} = \{ \vec{\sigma}_1, \vec{\sigma}_2, \dots \vec{\sigma}_{64} \}
+\end{equation}
+where the possible states $\vsigma_i$ are the permutations of three
+symbols taken from the alphabet $\mathcal{A}$.
+
+Like in the Viterbi case we precompute the posssible transitions
+$\vsigma_i \rightarrow \vsigma_j$ and the values of $u_k =
+f(\vsigma_j, \vsigma_i)$. We don't precompute the channel transition
+metrics $c_k(j | i)$ because the algorithm ran at an acceptable speed
+computing them when needed.
+
+We process an input signal with the FBA algorithm by splitting it into
+smaller chunks of $K_{in} = 600$ samples, which are overlapped by
+$2(K_d-1)$ samples, running the algorithm on these chunks, discarding
+the first and the last $K_d-1$ samples from each detected symbol
+sequence and joining everything together to have the final output.
+
+The forward procedure is very similar to the Viterbi algorithm: after
+we have initialized the values of the logarithm of the forward metric
+\begin{equation}
+  \tilde{f}_{-1}(j) = 0 \qquad j=1,2,\dots 64
+\end{equation}
+since we don't know the initial state of the system, at each iteration
+and for each state $j$
+\begin{itemize}
+  \item we compute the transition metrics
+    \begin{equation}
+      c_k(j|i) = -\abs{\rho_k - u_k}^2
+    \end{equation}
+    for every $i$ such that there is a transition $\vsigma_i
+    \rightarrow \vsigma_j$,
+  \item we compute the next possible values of $\tilde{f}_k(j)$
+    \begin{equation}
+      \tilde{f}_{k-1}(l) + c_k(j|l) \qquad \forall l : \vsigma_l \rightarrow \vsigma_j ,
+    \end{equation}
+  \item we pick the maximum of these metrics
+    \begin{equation}
+       \tilde{f}_{k}(j)  = \max_{l} \left[ \tilde{f}_{k-1}(l) + c_k(j|l) \right] 
+    \end{equation}
+    and save it as the forward metric of state $j$ at time $k$. This
+    time we do not need to store the survivor sequence.
+\end{itemize}
+We stop the algorithm after $K_{in} - K_d$ steps (see (\ref{eq:Kin})).
+
+
 
 \section{Symbol error comparison}
 \begin{figure}[htbp]
