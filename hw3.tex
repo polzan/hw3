@@ -64,9 +64,9 @@
 \maketitle
 \section{Transmitter}
 In the transmitter we generate the sequence of symbols $a_k$ by
-producing a uniformly distributed sequnce of bits twice as long and
+producing a uniformly distributed sequence of bits twice as long and
 mapping each pair of bits to a symbol of the QPSK constellation $
-\mathcal{A} = \{(1+j),(1-j),(-1-j),(-1+j)\}$. Then we upsample $a_k$
+\mathcal{A} = \{(1+j),(1-j),(-1-j),(-1+j)\}$. Then we up-sample $a_k$
 by a factor of 4 and filter it using the transfer function
 \begin{equation}
   Q_c(z) = \frac{\beta z^{-10}}{1 - \alpha z^{-1}}
@@ -93,7 +93,7 @@ Fig.~\ref{plot:Qf} there is the corresponding frequency response.
 \end{figure}
 
 We then add {\color{red} the channel (maybe without "channel"?) noise} $w_c(nT/4)$, assumed to be
-a complex gaussian with power spectral density $\mathcal{P}_{w_c}(f) =
+a complex Gaussian with power spectral density $\mathcal{P}_{w_c}(f) =
 N_0$ in the band of the signal $S_c(nT/4)$. The noise power and PSD
 can be obtained from the SNR:
 \begin{align}
@@ -107,7 +107,7 @@ The signal that gets to each one of the following receivers is
 $r_c(nT/4) = S_c(nT/4) + w_c(nT/4)$.
 
 \section{Matched filters}
-To implement the receivers scheme a) and b), knowing the equivalent trasmitter impulse response $q_c$, we firstly designed the $g_m$ filter by usign the relation, 
+To implement the receivers scheme a) and b), knowing the equivalent transmitter impulse response $q_c$, we firstly designed the $g_m$ filter by using the relation, 
 \begin{align}
   g_m(n T/4) &= q_c^* (\hat{t_0}-n T/4) & \hat{t_0} = 33 T/4&
 \end{align}
@@ -121,10 +121,10 @@ To implement the receivers scheme a) and b), knowing the equivalent trasmitter i
 \newpage
 
 {\color{red}where we choose the minimum value of $\hat{t_0}$} in order to have a causal filter. 
-Then, by inspecting the overall impulse response before the sampler $q_r(n T/4) = (q_c * g_m)(n T/4)$, we find a proper value of $t_0$ that in this case is equal to $33T/4$ ($\Bar{t_0} = 33$). With this choice we are sampling the riceived signal $x(nT/4) = (r_c*gm)(nT/4)$ in the peak of $q_r$ {\color{red} in order to reach the best performances}.
+Then, by inspecting the overall impulse response before the sampler $q_r(n T/4) = (q_c * g_m)(n T/4)$, we find a proper value of $t_0$ that in this case is equal to $33T/4$ ($\Bar{t_0} = 33$). With this choice we are sampling the received signal $x(nT/4) = (r_c*gm)(nT/4)$ in the peak of $q_r$ {\color{red} in order to reach the best performances}.
 Now we discuss the two configuration separately:
 \begin{itemize}
-\item[a)] to implement the Linear Equalizer we estmate the optimum coefficients of the filter $c$ through the relation:
+\item[a)] to implement the Linear Equalizer we estimate the optimum coefficients of the filter $c$ through the relation:
 \begin{align}
 \vec{c}_{opt}& = R^{-1} \vec{p}& 
 \end{align} 
@@ -132,12 +132,12 @@ in which
 \begin{align}
 &\vec{p} = \sigma_a^2 h_{D-p}^*&	
 \end{align}
-where $h$ is the overall impulse response $q_r$ sampled at $T$ and $\sigma_a^2$ is the power of the transmitted simbols. For the matrix $R$ the following relation holds in this case:
+where $h$ is the overall impulse response $q_r$ sampled at $T$ and $\sigma_a^2$ is the power of the transmitted symbols. For the matrix $R$ the following relation holds in this case:
 \begin{align}
  R_{p,q} &= \sigma^2_a \sum_{j=-N_1}^{N_2}h_jh^*_{j-(p-q)} + r_{\tilde{w}}(p-q) & p,q = 0,1,.....,M1-1&
 \end{align}
-in which $r_{\tilde{w}}(k) = N_0 r_{g_M}(k)$; with $r_{g_M}(k)$ the deterministic autocorrelation of $g_m$.
-The two parameters in this configuration are the delay D and the length of the  equalizer M1. By trying some configurations we find that a suitable value for D is 1 and for ????M1 is 3????. If we increase more the value of M1 we don't have a significant improvement in the performances, so we decided to stop here. {\color{red} For $D\neq 1$ indeed the sistem starts to work significantly worse}. With this settings we find the behaviour of the overall system impulse response $\psi(p) = \sum_{l=0}^{M1-1} c_l h_{p-l}$ showed in Fig.~\ref{plot:psi_le}. 
+in which $r_{\tilde{w}}(k) = N_0 r_{g_M}(k)$; with $r_{g_M}(k)$ the deterministic auto-correlation of $g_m$.
+The two parameters in this configuration are the delay D and the length of the  equalizer M1. By trying some configurations we find that a suitable value for D is 1 and for ????M1 is 3????. If we increase more the value of M1 we don't have a significant improvement in the performances, so we decided to stop here. {\color{red} For $D\neq 1$ indeed the system starts to work significantly worse}. With this settings we find the behaviour of the overall system impulse response $\psi(p) = \sum_{l=0}^{M1-1} c_l h_{p-l}$ showed in Fig.~\ref{plot:psi_le}. 
 
 \begin{figure}[h]
   \centering
@@ -160,7 +160,7 @@ The coefficients of the last filter are finally estimate using the relation
 \begin{align}
 b_i &= - \psi_{D+i}&  i &= 1,2,....,M2
 \end{align}
-Also in this case we have choose a value of D = 1 but now the first filter can be simpler because the postcursus are equilized by $b$. In fact, trying the various configuration we have found that M1 = M2 = 2 it's enough to our purposes. If we increase any of the two quantities the performance are quite the same, but, onthe other hand, if we decrease M1 or M2 the error probability starts to increase. We report the behaviour of $\psi$ in Fig. \ref{plot:psi_dfe_1} and the final configuration we used:
+Also in this case we have choose a value of D = 1 but now the first filter can be simpler because the postcursors are equalized by $b$. In fact, trying the various configuration we have found that M1 = M2 = 2 it's enough to our purposes. If we increase any of the two quantities the performance are quite the same, but, on the other hand, if we decrease M1 or M2 the error probability starts to increase. We report the behaviour of $\psi$ in Fig. \ref{plot:psi_dfe_1} and the final configuration we used:
 M1 = 2, M2 = 2, D = 1, $\Bar{t_0} = 33$, $\vec{c}_{opt} = [-0.2017, 1.0202]^T$, $\vec{b} = [-0.1947, -0.0398]^T$. The match filter and the configuration of the sampler are the same of point a).
 
 \begin{figure}[h]
@@ -177,7 +177,7 @@ M1 = 2, M2 = 2, D = 1, $\Bar{t_0} = 33$, $\vec{c}_{opt} = [-0.2017, 1.0202]^T$, 
 
 
 \section{Anti-aliasing filters}
-c) For the antialiasing filter that works 
+c) For the anti-aliasing filter that works 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.7\textwidth]{matlab/plot_gaa_freq}
@@ -264,7 +264,7 @@ To implement the Viterbi algorithm we first define the states
   \vec{s}_k = (a_k,a_{k-1}, a_{k-2}) \in \mathcal{S} = \{ \vec{\sigma}_1, \vec{\sigma}_2, \dots \vec{\sigma}_{64} \}
 \end{equation}
 that can be any combination of three symbols taken from the
-constellation $\mathcal{A}$, then we precompute:
+constellation $\mathcal{A}$, then we pre-compute:
 \begin{itemize}
   \item if it is possible to have a transition from a state
     $\vec{s}_{k-1} = \vec{\sigma}_i$ to the successive state
@@ -346,7 +346,7 @@ The state used in this algorithm is
 where the possible states $\vsigma_i$ are the permutations of three
 symbols taken from the alphabet $\mathcal{A}$.
 
-Like in the Viterbi case we precompute the posssible transitions
+Like in the Viterbi case we pre-compute the possible transitions
 $\vsigma_i \rightarrow \vsigma_j$ and the values of $u_k =
 f(\vsigma_j, \vsigma_i)$. We don't precompute the channel transition
 metrics $c_k(j | i)$ because the algorithm ran at an acceptable speed
@@ -408,7 +408,7 @@ Then:
   for every $m$ such that there is a transition $\vsigma_i \rightarrow
   \vsigma_m$,
   \item we compute the possible values of the backward metric at the
-    previous istant $\tilde{b}_k(i)$
+    previous instant $\tilde{b}_k(i)$
     \begin{equation}
       \tilde{b}_{k+1}(m) + c_{k+1}(m|i) \qquad \forall m : \vsigma_i
       \rightarrow \vsigma_m ,
@@ -421,18 +421,18 @@ Then:
 \end{itemize}
 
 When we have both the forward and backward metrics we can sum them to
-get the logarith of the state metric
+get the logarithm of the state metric
 \begin{equation}
   \tilde{v}_k(i) = \tilde{f}_k(i) + \tilde{b}_k(i) \qquad i=1,2,\dots64 ,
 \end{equation}
-apply the Max-Log-Map approximation to compute the log-likelyhood and
+apply the Max-Log-Map approximation to compute the log-likelihood and
 decide on the received symbols
 \begin{align}
   \tilde{l}_k(\beta) &= \max_{\substack{i=1,2\dots64 \\ [\vsigma_i]_1 = \beta}} \tilde{v}_k(i) \\
   \hat{a}_k &= \argmax_{\beta \in \mathcal{A}} \tilde{l}_k(\beta)
 \end{align}
 Like in the Viterbi algorithm the output sequence is shifted of $K_d
--1$ and there is the delay $D$ introdiced by the filter $c$. For the
+-1$ and there is the delay $D$ introduced by the filter $c$. For the
 trellis depth we pick the same value of the Viterbi case $K_d = 30$.
 
 As can also be seen in Fig.~\ref{plot:pe_all}, with a SNR of 11 dB we
