@@ -243,7 +243,7 @@ section~\ref{sec:dfe}:
 \end{align}
 where $h = q_c * g_M$ and $r_{\tilde{w}}(n) = N_0 r_{g_M}(nT)$. The
 parameters that we choose are the same as in section \ref{sec:dfe}:
-$M1 = M2 = 3$, $D=1$ and the filter coefficients are the same ones of
+$M1 = 3$, $M2 = 2$, $D=1$ and the filter coefficients are the same ones of
 Tab.~\ref{tab:dfe_c}.
 
 The overall system response before the Viterbi detector is $\psi(kT) =
@@ -256,14 +256,14 @@ The overall system response before the Viterbi detector is $\psi(kT) =
 \end{figure}
 We can see that the filter $c$ has eliminated the effect of the
 precursors, so the Viterbi algorithm only has to take into account the
-three postcursors of $\eta_n = \psi((n+D)T)$ and its parameters for the state
-will be $L_1 = 0$, $L_2 = M_2 = 3$.
+two non-zero postcursors of $\eta_n = \psi((n+D)T)$ and its parameters
+for the state will be $L_1 = 0$, $L_2 = M_2 = 2$.
 
 To implement the Viterbi algorithm we first define the states
 \begin{equation}
-  \vec{s}_k = (a_k,a_{k-1}, a_{k-2}) \in \mathcal{S} = \{ \vec{\sigma}_1, \vec{\sigma}_2, \dots \vec{\sigma}_{64} \}
+  \vec{s}_k = (a_k,a_{k-1}) \in \mathcal{S} = \{ \vec{\sigma}_1, \vec{\sigma}_2, \dots \vec{\sigma}_{16} \}
 \end{equation}
-that can be any combination of three symbols taken from the
+that can be any combination of two symbols taken from the
 constellation $\mathcal{A}$, then we pre-compute:
 \begin{itemize}
   \item if it is possible to have a transition from a state
@@ -280,7 +280,7 @@ constellation $\mathcal{A}$, then we pre-compute:
 \end{itemize}
 We then initialize the path metric values at state $k=-1$
 \begin{equation}
-  \Gamma(\vec{s}_{k-1} = \vec{\sigma}_j) = 0 \qquad j=1,2,\dots64
+  \Gamma(\vec{s}_{k-1} = \vec{\sigma}_j) = 0 \qquad j=1,2,\dots16
 \end{equation}
 because we have no information on the state of the system, so each one
 is equally likely, and start to process the input signal $\rho_k$
@@ -323,7 +323,7 @@ detecting the first symbol. There is also a delay of $D$ samples
 introduced by the filter $c$.
 
 After trying some values we pick a trellis depth equal to ten times
-the length of the state: $K_d = 30$. Since the input signal is a lot
+the length of the state: $K_d = 20$. Since the input signal is a lot
 longer than $K_d$, when the trellis diagram is full and we get a new
 sample $\rho_k$, we delete the oldest values from the path metrics and
 the survivor sequences. Since the path metrics are non-decreasing at a
@@ -331,19 +331,19 @@ certain point they will overflow, so we shift them back every 5000
 samples by subtracting the smallest value from all the others.
 
 As can also be seen in Fig.~\ref{plot:pe_all}, with a SNR of 11 dB we
-get a symbol error probability $P_e = 3.77 \cdot 10^{-4}$.
+get a symbol error probability {\color{red}$P_e = 3.77 \cdot 10^{-4}$.}
 \section{Max-Log-MAP}
 In the Max-Log-Map receiver we use the same receiver structure and the
-same parameters $t_0 = 33\frac{T}{4}$, $M1 = M2 = 3$, $D=1$ of
+same parameters $t_0 = 33\frac{T}{4}$, $M_1 = 3$, $M_2 = 2$, $D=1$ of
 section~\ref{sec:viterbi} so the overall system response $\psi(kT)$ is
 the same one of Fig.~\ref{plot:psi_dfe} and we set the same state
-length used in the previous case: $L_1 = 0$, $L_2 = M_2 = 3$.
+length used in the previous case: $L_1 = 0$, $L_2 = M_2 = 2$.
 
 The state used in this algorithm is
 \begin{equation}
-  \vec{s}_k = (a_k,a_{k-1}, a_{k-2}) \in \mathcal{S} = \{ \vec{\sigma}_1, \vec{\sigma}_2, \dots \vec{\sigma}_{64} \}
+  \vec{s}_k = (a_k,a_{k-1}) \in \mathcal{S} = \{ \vec{\sigma}_1, \vec{\sigma}_2, \dots \vec{\sigma}_{16} \}
 \end{equation}
-where the possible states $\vsigma_i$ are the permutations of three
+where the possible states $\vsigma_i$ are the permutations of two
 symbols taken from the alphabet $\mathcal{A}$.
 
 Like in the Viterbi case we pre-compute the possible transitions
@@ -359,12 +359,13 @@ discard the first and the last $K_d-1$ samples from each output symbol
 sequence and join them together to have the final output.  In this way
 we limit the amount of memory needed to process a long signal and, by
 discarding the first and last output symbols, we use the same number
-of transitions to detect the symbol at every sample.
+of transitions to detect the symbol at every sample.  For the trellis
+depth we pick the same value of the Viterbi case $K_d = 20$.
 
 The forward procedure is very similar to the Viterbi algorithm: after
 we have initialized the values of the logarithm of the forward metric
 \begin{equation}
-  \tilde{f}_{-1}(j) = 0 \qquad j=1,2,\dots 64
+  \tilde{f}_{-1}(j) = 0 \qquad j=1,2,\dots 16
 \end{equation}
 since we don't know the initial state of the system, at each iteration
 and for each state $j$
@@ -397,7 +398,7 @@ backward metrics $\tilde{b}_k(i)$. In this case we can not reuse the
 metrics for the next chunk of samples because they depend on the last
 received sample, so we always start from
 \begin{equation}
-  \tilde{b}_{K_{in}}(i) = 0 \qquad i = 1,2,\dots64 .
+  \tilde{b}_{K_{in}}(i) = 0 \qquad i = 1,2,\dots16x .
 \end{equation}
 Then:
 \begin{itemize}
@@ -423,20 +424,19 @@ Then:
 When we have both the forward and backward metrics we can sum them to
 get the logarithm of the state metric
 \begin{equation}
-  \tilde{v}_k(i) = \tilde{f}_k(i) + \tilde{b}_k(i) \qquad i=1,2,\dots64 ,
+  \tilde{v}_k(i) = \tilde{f}_k(i) + \tilde{b}_k(i) \qquad i=1,2,\dots16 ,
 \end{equation}
 apply the Max-Log-Map approximation to compute the log-likelihood and
 decide on the received symbols
 \begin{align}
-  \tilde{l}_k(\beta) &= \max_{\substack{i=1,2\dots64 \\ [\vsigma_i]_1 = \beta}} \tilde{v}_k(i) \\
+  \tilde{l}_k(\beta) &= \max_{\substack{i=1,2\dots16 \\ [\vsigma_i]_1 = \beta}} \tilde{v}_k(i) \\
   \hat{a}_k &= \argmax_{\beta \in \mathcal{A}} \tilde{l}_k(\beta)
 \end{align}
 Like in the Viterbi algorithm the output sequence is shifted of $K_d
--1$ and there is the delay $D$ introduced by the filter $c$. For the
-trellis depth we pick the same value of the Viterbi case $K_d = 30$.
+-1$ and there is the delay $D$ introduced by the filter $c$.
 
 As can also be seen in Fig.~\ref{plot:pe_all}, with a SNR of 11 dB we
-get a symbol error probability $P_e = 3.9 \cdot 10^{-4}$.
+get a symbol error probability {\color{red}$P_e = 3.9 \cdot 10^{-4}$.}
 \section{Symbol error comparison}
 \begin{figure}[htbp]
   \centering
