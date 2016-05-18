@@ -140,4 +140,4 @@ figure;
 stem((0:length(psi)-1)-t0_sampled, psi);
 xlabel('k [@ T]');
 ylabel('psi(kT)');
-% print('plot_psi_dfe', '-depsc');
+print('plot_psi_dfe', '-depsc');

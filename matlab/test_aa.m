@@ -1,7 +1,7 @@
 close all;
 t0 = 16;
   M1 = 2;
-  M2 = 4;
+  M2 = 3;
 D = 1;
 t0_sampled = floor(t0/4);
 l_estim = 30*10^4 + ceil(t0_sampled/2 + D/2);
@@ -17,6 +17,12 @@ SNR_lin = 10^(SNR/10);
 [qc_b, qc_a, qc_length] = transmitter_tf();
 qc = impz(qc_b, qc_a, qc_length);
 gaa = fir1(10,0.35,'low');
+
+stem((0:length(gaa)-1), gaa);
+xlabel('n [@ T/4]');
+ylabel('g_a(nT/4)');
+print('plot_gaa_T', '-depsc');
+
 rr = filter(gaa, 1, rc);
 rr_sampled = downsample(rr, 4, mod(t0,4));
 % figure;
@@ -127,3 +133,21 @@ y = dfe_filtering(c,b,x,D);
 
 Pe = 4*(1-1/sqrt(4))*(1 - normcdf(sqrt(3/(4-1)*SNR_lin),0,1));
 Pbit_upper_bound = 1/log2(4) * Pe;
+
+T = 1;
+T_Q = T/4;
+Qa_samples = 1000;
+[Q_aa_half, f_half] = freqz(gaa, 1, Qa_samples, 1/T_Q);
+figure;
+plot(f_half, 20*log10(abs(Q_aa_half)));
+xlabel('f (@ 4/T)');
+ylabel('|G_a(f)| [dB]');
+grid on;
+print('plot_Gaa_T', '-depsc');
+
+
+figure;
+stem((0:length(psi)-1)-t0_sampled, psi);
+xlabel('k [@ T]');
+ylabel('psi(kT)');
+print('plot_psi_aa_T', '-depsc');
