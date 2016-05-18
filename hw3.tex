@@ -228,8 +228,8 @@ d)
 \label{sec:viterbi}
 In the Viterbi receiver we use the same filter $g_M(nT/4) = q_c^*((\overline{t_0} - n)T/4)$ of
 sections~\ref{sec:le}~and~\ref{sec:dfe}, matched to the response of
-the transmitter and the channel $q_c$, {\color{red} to maximize the
-  SNR before the equalizer} and we also sample in the same way
+the transmitter and the channel $q_c$, to maximize the
+  SNR before the equalizer and we also sample in the same way
 starting at $t_0 = \overline{t_0}\frac{T}{4} = 33\frac{T}{4}$ with
 period $T$.
 
@@ -243,7 +243,8 @@ section~\ref{sec:dfe}:
 \end{align}
 where $h = q_c * g_M$ and $r_{\tilde{w}}(n) = N_0 r_{g_M}(nT)$. The
 parameters that we choose are the same as in section \ref{sec:dfe}:
-$M1 = M2 = 3$, $D=1$ {\color{red} and $N1 = N2 = 8$ }.
+$M1 = M2 = 3$, $D=1$ and the filter coefficients are the same ones of
+Tab.~\ref{tab:dfe_c}.
 
 The overall system response before the Viterbi detector is $\psi(kT) =
 (q_c * g_M * c)_{(kT)}$ and it is shown in Fig.~\ref{plot:psi_dfe}.
@@ -255,8 +256,8 @@ The overall system response before the Viterbi detector is $\psi(kT) =
 \end{figure}
 We can see that the filter $c$ has eliminated the effect of the
 precursors, so the Viterbi algorithm only has to take into account the
-three postcursors of $\psi((n+D)T)$ and its parameters for the state
-will be $L_1 = 0$, $L_2 = M2 = 3$.
+three postcursors of $\eta_n = \psi((n+D)T)$ and its parameters for the state
+will be $L_1 = 0$, $L_2 = M_2 = 3$.
 
 To implement the Viterbi algorithm we first define the states
 \begin{equation}
@@ -284,7 +285,7 @@ We then initialize the path metric values at state $k=-1$
 because we have no information on the state of the system, so each one
 is equally likely, and start to process the input signal $\rho_k$
 sample by sample following the Viterbi algorithm. At every iteration
-we compute for each state $\sigma_j$:
+we compute for each state $\vsigma_j$:
 \begin{itemize}
 \item the branch metrics
   \begin{equation}
@@ -312,14 +313,14 @@ trellis diagram, $K_d$ we select
   {\vsigma_j}_{opt} = \argmin_{\vsigma_j} \Gamma(\vec{s}_{K_d-1} = \vec{\sigma}_j)
 \end{equation}
 and follow the survivor sequence $\mathcal{L}(\vec{s}_{K_d-1} =
-{\vsigma_j}_{opt})$ backward until we reach the first state,
-{\color{red}which is the most likely to be the actual state of the
-  system at time $k-K_d+1$. Finally we can get the detected symbol
-  $\hat{a}_{k+K_d-1+D}$ from the first component of the state}, which
-is shifted with respect to the original symbol sequence $a_k$ because
+{\vsigma_j}_{opt})$ backward until we reach the first state, which is
+the most likely to be the actual state of the system at $K_d-1$
+samples in the past. Finally we can get the detected symbol
+$\hat{a}_{k}$ from the first component of the state, which is shifted
+of $K_d-1$ with respect to the original symbol sequence $a_k$ because
 the algorithm waits for the trellis diagram to be full before
-detecting the first symbol. {\color{red}There is also a delay of $D$
-  samples introduced by the filter $c$}.
+detecting the first symbol. There is also a delay of $D$ samples
+introduced by the filter $c$.
 
 After trying some values we pick a trellis depth equal to ten times
 the length of the state: $K_d = 30$. Since the input signal is a lot
@@ -353,9 +354,12 @@ computing them when needed.
 
 We process an input signal with the FBA algorithm by splitting it into
 smaller chunks of $K_{in} = 600$ samples, which are overlapped by
-$2(K_d-1)$ samples, running the algorithm on these chunks, discarding
-the first and the last $K_d-1$ samples from each detected symbol
-sequence and joining everything together to have the final output.
+$2(K_d-1)$ samples. We then run the algorithm on these chunks and
+discard the first and the last $K_d-1$ samples from each output symbol
+sequence and join them together to have the final output.  In this way
+we limit the amount of memory needed to process a long signal and, by
+discarding the first and last output symbols, we use the same number
+of transitions to detect the symbol at every sample.
 
 The forward procedure is very similar to the Viterbi algorithm: after
 we have initialized the values of the logarithm of the forward metric
@@ -367,13 +371,14 @@ and for each state $j$
 \begin{itemize}
   \item we compute the transition metrics
     \begin{equation}
-      c_k(j|i) = -\abs{\rho_k - u_k}^2
+      c_k(j|l) = -\abs{\rho_k - u_k}^2
     \end{equation}
-    for every $i$ such that there is a transition $\vsigma_i
+    for every $l$ such that there is a transition $\vsigma_l
     \rightarrow \vsigma_j$,
   \item we compute the next possible values of $\tilde{f}_k(j)$
     \begin{equation}
-      \tilde{f}_{k-1}(l) + c_k(j|l) \qquad \forall l : \vsigma_l \rightarrow \vsigma_j ,
+      \tilde{f}_{k-1}(l) + c_k(j|l) \qquad \forall l : \vsigma_l
+      \rightarrow \vsigma_j ,
     \end{equation}
   \item we pick the maximum of these metrics
     \begin{equation}
@@ -382,10 +387,56 @@ and for each state $j$
     and save it as the forward metric of state $j$ at time $k$. This
     time we do not need to store the survivor sequence.
 \end{itemize}
-We stop the algorithm after $K_{in} - K_d$ steps (see (\ref{eq:Kin})).
+We stop the algorithm after $K_{in} - K_d$ steps because the rest will
+not be used and we store the last forward metrics $\tilde{f}_{K_{in} -
+  K_d}(j)$ because they will be the initial metrics for the following
+chunk of samples.
 
+We then apply a similar procedure to compute the logarithm of the
+backward metrics $\tilde{b}_k(i)$. In this case we can not reuse the
+metrics for the next chunk of samples because they depend on the last
+received sample, so we always start from
+\begin{equation}
+  \tilde{b}_{K_{in}}(i) = 0 \qquad i = 1,2,\dots64 .
+\end{equation}
+Then:
+\begin{itemize}
+\item we compute the transition metrics
+  \begin{equation}
+    c_{k+1}(m|i) = -\abs{\rho_{k+1} - u_{k+1}}^2
+  \end{equation}
+  for every $m$ such that there is a transition $\vsigma_i \rightarrow
+  \vsigma_m$,
+  \item we compute the possible values of the backward metric at the
+    previous istant $\tilde{b}_k(i)$
+    \begin{equation}
+      \tilde{b}_{k+1}(m) + c_{k+1}(m|i) \qquad \forall m : \vsigma_i
+      \rightarrow \vsigma_m ,
+    \end{equation}
+    \item we pick the maximum of these metrics
+    \begin{equation}
+       \tilde{b}_{k}(i)  = \max_{m} \left[ \tilde{b}_{k+1}(m) + c_{k+1}(m|i) \right] 
+    \end{equation}
+    and save it as the backward metric of state $i$ at time $k$.
+\end{itemize}
 
+When we have both the forward and backward metrics we can sum them to
+get the logarith of the state metric
+\begin{equation}
+  \tilde{v}_k(i) = \tilde{f}_k(i) + \tilde{b}_k(i) \qquad i=1,2,\dots64 ,
+\end{equation}
+apply the Max-Log-Map approximation to compute the log-likelyhood and
+decide on the received symbols
+\begin{align}
+  \tilde{l}_k(\beta) &= \max_{\substack{i=1,2\dots64 \\ [\vsigma_i]_1 = \beta}} \tilde{v}_k(i) \\
+  \hat{a}_k &= \argmax_{\beta \in \mathcal{A}} \tilde{l}_k(\beta)
+\end{align}
+Like in the Viterbi algorithm the output sequence is shifted of $K_d
+-1$ and there is the delay $D$ introdiced by the filter $c$. For the
+trellis depth we pick the same value of the Viterbi case $K_d = 30$.
 
+As can also be seen in Fig.~\ref{plot:pe_all}, with a SNR of 11 dB we
+get a symbol error probability $P_e = 3.9 \cdot 10^{-4}$.
 \section{Symbol error comparison}
 \begin{figure}[htbp]
   \centering
