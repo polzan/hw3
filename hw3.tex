@@ -348,7 +348,7 @@ symbols taken from the alphabet $\mathcal{A}$.
 
 Like in the Viterbi case we pre-compute the possible transitions
 $\vsigma_i \rightarrow \vsigma_j$ and the values of $u_k =
-f(\vsigma_j, \vsigma_i)$. We don't precompute the channel transition
+f(\vsigma_j, \vsigma_i)$. We don't pre-compute the channel transition
 metrics $c_k(j | i)$ because the algorithm ran at an acceptable speed
 computing them when needed.
 
@@ -438,10 +438,27 @@ Like in the Viterbi algorithm the output sequence is shifted of $K_d
 As can also be seen in Fig.~\ref{plot:pe_all}, with a SNR of 11 dB we
 get a symbol error probability {\color{red}$P_e = 3.9 \cdot 10^{-4}$.}
 \section{Symbol error comparison}
+In Fig.~\ref{plot:pe_all} we plot the symbol errors obtained by the
+simulation of the six receivers with $\Gamma$ between 8~and~14 dB
+along with the theoretical lower bound on their values, given by
+\begin{equation}
+  P_e \geq 2 Q \left(\sqrt{\Gamma}\right) ,
+\end{equation}
+and the results obtained by simulating the same transmission system
+with a channel with no ISI and additive white noise
+\begin{align}
+  y_k &= a_k + w_k \\
+  w_k & \distr \mathcal{CN}(0, \sigma^2_w) \\
+  \sigma^2_w &= \frac{\sigma^2_a}{\Gamma} \\
+  \sigma^2_a &= 2 
+\end{align}
+that uses a threshold detector.
+
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{matlab/pe_plot}
   \caption{Comparison of the symbol error with different receivers}
   \label{plot:pe_all}
 \end{figure}
+
 \end{document}
