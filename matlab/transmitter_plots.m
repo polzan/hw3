@@ -9,14 +9,14 @@ Qf_samples = 1000;
 
 figure;
 stem((0:length(q_c)-1), q_c);
-xlabel('n');
+xlabel('n [@ T/4]');
 ylabel('q_c(nT/4)');
 grid on;
 print('plot_qc', '-depsc');
 
 figure;
 plot(f_half, 20*log10(abs(Q_f_half)));
-xlabel('f (Fs = 4/T)');
+xlabel('f (@ 4/T)');
 ylabel('|Q_c(f)| [dB]');
 grid on;
 print('plot_Qf', '-depsc');
