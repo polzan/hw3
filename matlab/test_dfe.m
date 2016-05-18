@@ -141,3 +141,10 @@ stem((0:length(psi)-1)-t0_sampled, psi);
 xlabel('k [@ T]');
 ylabel('psi(kT)');
 print('plot_psi_dfe', '-depsc');
+
+% Plot the g_M
+figure;
+stem(0:length(gm)-1, gm);
+xlabel('n [@ T/4]');
+ylabel('g_M(nT/4)');
+print('plot_gm', '-depsc');
