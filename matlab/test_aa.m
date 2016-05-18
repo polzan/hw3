@@ -143,7 +143,7 @@ plot(f_half, 20*log10(abs(Q_aa_half)));
 xlabel('f (@ 4/T)');
 ylabel('|G_a(f)| [dB]');
 grid on;
-print('plot_Gaa_T', '-depsc');
+print('plot_gaa_freq_T', '-depsc');
 
 
 figure;
