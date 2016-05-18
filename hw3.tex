@@ -36,12 +36,8 @@
 \newcommand{\Prob}[1]{\operatorname{P}\left[#1\right]}
 \newcommand{\ProbC}[2]{\operatorname{P}\left[#1\middle|#2\right]}
 \newcommand{\ind}[1]{\operatorname{\mathbbm{1}}\left\{#1\right\}}
-\DeclareMathOperator*{\argmin}{argmin}
-\DeclareMathOperator*{\argmax}{argmax}
 \newcommand{\distr}[0]{\sim}
 \newcommand{\unif}[1]{\mathcal{U}_{#1}}
-
-\newcommand{\vsigma}[0]{\vec{\sigma}}
 
 \author{Enrico Polo \and Riccardo Zanol}
 \title{Homework 3}
@@ -64,9 +60,9 @@
 \maketitle
 \section{Transmitter}
 In the transmitter we generate the sequence of symbols $a_k$ by
-producing a uniformly distributed sequence of bits twice as long and
+producing a uniformly distributed sequnce of bits twice as long and
 mapping each pair of bits to a symbol of the QPSK constellation $
-\mathcal{A} = \{(1+j),(1-j),(-1-j),(-1+j)\}$. Then we up-sample $a_k$
+\mathcal{A} = \{(1+j),(1-j),(-1-j),(-1+j)\}$. Then we upsample $a_k$
 by a factor of 4 and filter it using the transfer function
 \begin{equation}
   Q_c(z) = \frac{\beta z^{-10}}{1 - \alpha z^{-1}}
@@ -93,7 +89,7 @@ Fig.~\ref{plot:Qf} there is the corresponding frequency response.
 \end{figure}
 
 We then add {\color{red} the channel (maybe without "channel"?) noise} $w_c(nT/4)$, assumed to be
-a complex Gaussian with power spectral density $\mathcal{P}_{w_c}(f) =
+a complex gaussian with power spectral density $\mathcal{P}_{w_c}(f) =
 N_0$ in the band of the signal $S_c(nT/4)$. The noise power and PSD
 can be obtained from the SNR:
 \begin{align}
@@ -107,7 +103,7 @@ The signal that gets to each one of the following receivers is
 $r_c(nT/4) = S_c(nT/4) + w_c(nT/4)$.
 
 \section{Matched filters}
-To implement the receivers scheme a) and b), knowing the equivalent transmitter impulse response $q_c$, we firstly designed the $g_m$ filter by using the relation, 
+To implement the receivers scheme a) and b), knowing the equivalent trasmitter impulse response $q_c$, we firstly designed the $g_m$ filter by usign the relation, 
 \begin{align}
   g_m(n T/4) &= q_c^* (\hat{t_0}-n T/4) & \hat{t_0} = 33 T/4&
 \end{align}
@@ -121,10 +117,10 @@ To implement the receivers scheme a) and b), knowing the equivalent transmitter 
 \newpage
 
 {\color{red}where we choose the minimum value of $\hat{t_0}$} in order to have a causal filter. 
-Then, by inspecting the overall impulse response before the sampler $q_r(n T/4) = (q_c * g_m)(n T/4)$, we find a proper value of $t_0$ that in this case is equal to $33T/4$ ($\Bar{t_0} = 33$). With this choice we are sampling the received signal $x(nT/4) = (r_c*gm)(nT/4)$ in the peak of $q_r$ {\color{red} in order to reach the best performances}.
+Then, by inspecting the overall impulse response before the sampler $q_r(n T/4) = (q_c * g_m)(n T/4)$, we find a proper value of $t_0$ that in this case is equal to $33T/4$ ($\Bar{t_0} = 33$). With this choice we are sampling the riceived signal $x(nT/4) = (r_c*gm)(nT/4)$ in the peak of $q_r$ {\color{red} in order to reach the best performances}.
 Now we discuss the two configuration separately:
 \begin{itemize}
-\item[a)] to implement the Linear Equalizer we estimate the optimum coefficients of the filter $c$ through the relation:
+\item[a)] to implement the Linear Equalizer we estmate the optimum coefficients of the filter $c$ through the relation:
 \begin{align}
 \vec{c}_{opt}& = R^{-1} \vec{p}& 
 \end{align} 
@@ -132,12 +128,12 @@ in which
 \begin{align}
 &\vec{p} = \sigma_a^2 h_{D-p}^*&	
 \end{align}
-where $h$ is the overall impulse response $q_r$ sampled at $T$ and $\sigma_a^2$ is the power of the transmitted symbols. For the matrix $R$ the following relation holds in this case:
+where $h$ is the overall impulse response $q_r$ sampled at $T$ and $\sigma_a^2$ is the power of the transmitted simbols. For the matrix $R$ the following relation holds in this case:
 \begin{align}
  R_{p,q} &= \sigma^2_a \sum_{j=-N_1}^{N_2}h_jh^*_{j-(p-q)} + r_{\tilde{w}}(p-q) & p,q = 0,1,.....,M1-1&
 \end{align}
-in which $r_{\tilde{w}}(k) = N_0 r_{g_M}(k)$; with $r_{g_M}(k)$ the deterministic auto-correlation of $g_m$.
-The two parameters in this configuration are the delay D and the length of the  equalizer M1. By trying some configurations we find that a suitable value for D is 1 and for ????M1 is 3????. If we increase more the value of M1 we don't have a significant improvement in the performances, so we decided to stop here. {\color{red} For $D\neq 1$ indeed the system starts to work significantly worse}. With this settings we find the behaviour of the overall system impulse response $\psi(p) = \sum_{l=0}^{M1-1} c_l h_{p-l}$ showed in Fig.~\ref{plot:psi_le}. 
+in which $r_{\tilde{w}}(k) = N_0 r_{g_M}(k)$; with $r_{g_M}(k)$ the deterministic autocorrelation of $g_m$.
+The two parameters in this configuration are the delay D and the length of the  equalizer M1. By trying some configurations we find that a suitable value for D is 1 and for M1 is 3. If we increase more the value of M1 we don't have a significant improvement in the performances, so we decided to stop here. {\color{red} For $D\neq 1$ indeed the sistem starts to work significantly worse}. With this settings we find the behaviour of the overall system impulse response $\psi(p) = \sum_{l=0}^{M1-1} c_l h_{p-l}$ showed in Fig.~\ref{plot:psi_le}. 
 
 \begin{figure}[h]
   \centering
@@ -146,7 +142,7 @@ The two parameters in this configuration are the delay D and the length of the  
   \label{plot:psi_le}
 \end{figure}
 
-\newpage In conclusion we have set: D = 1, ???M1 = 3???, $\Bar{t_0} = 33$. 
+\newpage In conclusion we have set: D = 1, M1 = 3, $\Bar{t_0} = 33$. 
 \newline We have found: $\vec{c}_{opt} = [-0,2016, 1,0601, -0,2016]^T$,{\color{red} $\psi(D) = 0.9789$, $\psi(D-1) = 0.0038$, $\psi(D+1) = 0.004$ (the other values of $\psi$ are $\leq 10^{-5}$ ).}
 
 \item[b)] To implement the filter $c$ of the Decision Filter Equalizer we used the same approach of the previous point (Equation (5) ). The only difference is the computation of R that it's done using
@@ -160,8 +156,8 @@ The coefficients of the last filter are finally estimate using the relation
 \begin{align}
 b_i &= - \psi_{D+i}&  i &= 1,2,....,M2
 \end{align}
-Also in this case we have choose a value of D = 1 but now the first filter can be simpler because the postcursors are equalized by $b$. In fact, trying the various configuration we have found that M1 = M2 = 2 it's enough to our purposes. If we increase any of the two quantities the performance are quite the same, but, on the other hand, if we decrease M1 or M2 the error probability starts to increase. We report the behaviour of $\psi$ in Fig. \ref{plot:psi_dfe_1} and the final configuration we used:
-M1 = 2, M2 = 2, D = 1, $\Bar{t_0} = 33$, $\vec{c}_{opt} = [-0.2017, 1.0202]^T$, $\vec{b} = [-0.1947, -0.0398]^T$. The match filter and the configuration of the sampler are the same of point a).
+Also in this case we have choose a value of D = 1 but now the first filter can be simpler because the postcursus are equilized by $b$. In fact, trying the various configuration we have found that M1 = 3 and M2 = 2 it's enough to our purposes. If we increase any of the two quantities the performance are quite the same, but, onthe other hand, if we decrease M1 or M2 the error probability starts to increase. We report the behaviour of $\psi$ in Fig. \ref{plot:psi_dfe_1} and the final configuration we used:
+M1 = 3, M2 = 2, D = 1, $\Bar{t_0} = 33$, $\vec{c}_{opt} = [-0.2017, 1.0234, -0.0158]^T$, $\vec{b} = [-0.1823, -0.0367]^T$. The match filter and the configuration of the sampler are the same of point a).
 
 \begin{figure}[h]
   \centering
@@ -177,36 +173,40 @@ M1 = 2, M2 = 2, D = 1, $\Bar{t_0} = 33$, $\vec{c}_{opt} = [-0.2017, 1.0202]^T$, 
 
 
 \section{Anti-aliasing filters}
-c) For the anti-aliasing filter that works 
+\begin{itemize}
+\item 
+
+For the configuration c) we have usa a lowpass linear FIR filter of order 20 to build $gaa$, whose frequency response and impulse response are shown in Fig. \ref{plot:Gaa2} and Fig. \ref{plot:gaa2} respectively. 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.7\textwidth]{matlab/plot_gaa_freq}
-  \caption{Frequency response of $g_{aa}$ in dB}
+  \caption{Frequency response of $g_{aa}$ in dB (C @T/2)}
   \label{plot:Gaa2}
 \end{figure}
-\begin{figure}[]
+\begin{figure}[h]
   \centering
   \includegraphics[width=0.7\textwidth]{matlab/plot_gaa}
-  \caption{$g_{aa}$ impulse response}
+  \caption{$g_{aa}$ impulse response (C @T/2)}
   \label{plot:gaa2}
 \end{figure}
 
-\begin{figure}[h]
+ 
+
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.7\textwidth]{matlab/plot_psi_aa}
-  \caption{$\psi(kT)$ behaviour (AA @T/2)}
-  \label{plot:Gaa}
+  \caption{$\psi(kT)$ behaviour (AA @T/2) (C @T/2)}
+  \label{plot:psi_aa}
 \end{figure}
-
-
-
+Proceeding like in the previous points we inspected the impulse response before the sampler $q_r(n T/4) = (q_c * g_m)(n T/4)$ and we find that, to sample in the peak, we must choose $\Bar{t_0} = 20$, but in this case we sample every T/2. The design of the optimum filter $c$ it's done as in case b), with the through the equation (8), then we downsample the received signal by a factor $F_0 = 2$ to return at time T. Finally to build the $b$ filter we used the relation $b_i = - \psi_{2(D+i}$ {\color{red}that takes into account the fact that the filter $c$ works at T/2 but after the downsampler we have a simbol (and a postcursus of psi that needs to be cancelled) every T seconds}. In our tries we find the following settings as the best: M1 = 3, M2 = 2, D = 1, $\Bar{t_0} = 20$ and we obtained: $\vec{c}_{opt} = [0.0012, 0.0451, 0.2879]^T$ $\vec{b} = [-0.0518, -0.0086]^T$. The correspondent $\psi$ at time T is showed in Fig. \ref{plot:psi_aa}.
 \newpage
-d)
+\item
+To implement setting d) we find that using an order 10, linear FIR, lowpass filter as $g_{aa}$ we can get good performances. Also in this case the frequency response and impulse response are showed in Fig. \ref{plot:gaa_freq_T} and Fig. \ref{plot:gaa}. using a different size for the anti-aliasing filter we need to recompute the optimal value of $\Bar{t_0}$ and we find that it must be equal to 16. This configuration is similar to the previous one, but we don't have to account for the different timing between filters $c$ and $b$. So, as usual we used eq. (8) to estimate the $\vec{c}_{opt}$ and then we find $b_i = -\psi_{D+i}$. Making some tests with this setup we fiin the following results: M1 = 2, D = 1, M2 = 3, $\Bar{t_0} = 16$, $\vec{c}_{opt} = [0.0013, 0.0914]^T$, $\vec{b} = [-0.0095, -0.0019, -0.0004]^T$ . The behaviour of $\psi$ is showed in Fig. \ref{plot:gaa_psi_T}.
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.7\textwidth]{matlab/plot_gaa_freq_T}
   \caption{Frequency response of $g_{aa}$ in dB}
-  \label{plot:Gaa}
+  \label{plot:gaa_freq_T}
 \end{figure}
 
 \begin{figure}[h]
@@ -220,16 +220,15 @@ d)
   \centering
   \includegraphics[width=0.7\textwidth]{matlab/plot_psi_aa_T}
   \caption{$\psi(kT)$ behaviour (AA @T)}
-  \label{plot:Gaa}
+  \label{plot:gaa_psi_T}
 \end{figure}
 
-
+\end{itemize}
 \section{Viterbi}
-\label{sec:viterbi}
-In the Viterbi receiver we use the same filter $g_M(nT/4) = q_c^*((\overline{t_0} - n)T/4)$ of
+In the Viterbi receiver we use the same filter $g_M$ of
 sections~\ref{sec:le}~and~\ref{sec:dfe}, matched to the response of
-the transmitter and the channel $q_c$, to maximize the
-  SNR before the equalizer and we also sample in the same way
+the transmitter and the channel $q_c$, {\color{red} to maximize the
+  SNR before the equalizer} and we also sample in the same way
 starting at $t_0 = \overline{t_0}\frac{T}{4} = 33\frac{T}{4}$ with
 period $T$.
 
@@ -243,8 +242,7 @@ section~\ref{sec:dfe}:
 \end{align}
 where $h = q_c * g_M$ and $r_{\tilde{w}}(n) = N_0 r_{g_M}(nT)$. The
 parameters that we choose are the same as in section \ref{sec:dfe}:
-$M1 = M2 = 3$, $D=1$ and the filter coefficients are the same ones of
-Tab.~\ref{tab:dfe_c}.
+$M1 = M2 = 3$, $D=1$ {\color{red} and $N1 = N2 = 8$ }.
 
 The overall system response before the Viterbi detector is $\psi(kT) =
 (q_c * g_M * c)_{(kT)}$ and it is shown in Fig.~\ref{plot:psi_dfe}.
@@ -256,192 +254,32 @@ The overall system response before the Viterbi detector is $\psi(kT) =
 \end{figure}
 We can see that the filter $c$ has eliminated the effect of the
 precursors, so the Viterbi algorithm only has to take into account the
-three postcursors of $\eta_n = \psi((n+D)T)$ and its parameters for the state
-will be $L_1 = 0$, $L_2 = M_2 = 3$.
+three postcursors of $\psi$ and its parameters will be $L_1 = 0$, $L_2
+= 3$ and $D=1$ because the peak is shifted by $1T$.
 
 To implement the Viterbi algorithm we first define the states
-\begin{equation}
-  \vec{s}_k = (a_k,a_{k-1}, a_{k-2}) \in \mathcal{S} = \{ \vec{\sigma}_1, \vec{\sigma}_2, \dots \vec{\sigma}_{64} \}
-\end{equation}
-that can be any combination of three symbols taken from the
-constellation $\mathcal{A}$, then we pre-compute:
+$\vec{s}_k = (a_k,a_{k-1}, a_{k-2}) \in \mathcal{S}$ that can be any
+combination of three symbols taken from the constellation
+$\mathcal{A}$, then we precompute:
 \begin{itemize}
   \item if it is possible to have a transition from a state
     $\vec{s}_{k-1} = \vec{\sigma}_i$ to the successive state
     $\vec{s}_{k} = \vec{\sigma}_j$, for every pair of states
     $\vec{\sigma}_j$, $\vec{\sigma}_i$    
-\item the value of the sample we would receive if
-  $(\vec{s}_k,\vec{s}_{k-1})$ were equal to $(\vsigma_j, \vsigma_i)$
+\item the value of
   \begin{equation}
     u_k = f(\vec{\sigma}_j, \vec{\sigma}_i) =
     \sum_{n=-L_1}^{L_2}\psi_{n+D}a_{k-n}
   \end{equation} wherever a transition from $\vec{\sigma}_i$ to $\vec{\sigma}_j$ is
   possible.
 \end{itemize}
-We then initialize the path metric values at state $k=-1$
+Then we initialize the path metric values at state $k=-1$
 \begin{equation}
-  \Gamma(\vec{s}_{k-1} = \vec{\sigma}_j) = 0 \qquad j=1,2,\dots64
+  \Gamma_{k-1}(\vec{s}_{k-1} = \vec{\sigma}_j) = 0 \qquad \forall j
 \end{equation}
 because we have no information on the state of the system, so each one
-is equally likely, and start to process the input signal $\rho_k$
-sample by sample following the Viterbi algorithm. At every iteration
-we compute for each state $\vsigma_j$:
-\begin{itemize}
-\item the branch metrics
-  \begin{equation}
-    \abs{\rho_k - u_k}^2 \qquad \forall u_k = f(\vsigma_j,\vsigma_i)
-  \end{equation}
-    where it is possible to move from $\vsigma_i$ to $\vsigma_j$,
-  \item the corresponding path metrics
-    \begin{equation}
-      \Gamma(\vec{s}_{k-1} = \vec{\sigma}_i) + \abs{\rho_k - u_k}^2 \qquad \forall \vsigma_i ,
-    \end{equation}
-  \item the path metric that we assign to state $\vsigma_j$ in the
-    current iteration $k$
-    \begin{equation}
-      \Gamma(\vec{s}_k = \vec{\sigma}_j) = \min_{\vsigma_i} \left[ \Gamma(\vec{s}_{k-1} = \vec{\sigma}_i) + \abs{\rho_k - u_k}^2 \right]
-    \end{equation}
-    and we also store the state that minimizes the path metric,
-    ${\vsigma_i}_{opt}$, in the survivor sequence
-    \begin{equation}
-      \mathcal{L}(\vec{s}_k = \vsigma_j) = (\mathcal{L}(\vec{s}_{k-1} = {\vsigma_i}_{opt}), \vsigma_j) .
-    \end{equation}
-\end{itemize}
-After a number of iterations equal to the maximum desired depth of the
-trellis diagram, $K_d$ we select
-\begin{equation}
-  {\vsigma_j}_{opt} = \argmin_{\vsigma_j} \Gamma(\vec{s}_{K_d-1} = \vec{\sigma}_j)
-\end{equation}
-and follow the survivor sequence $\mathcal{L}(\vec{s}_{K_d-1} =
-{\vsigma_j}_{opt})$ backward until we reach the first state, which is
-the most likely to be the actual state of the system at $K_d-1$
-samples in the past. Finally we can get the detected symbol
-$\hat{a}_{k}$ from the first component of the state, which is shifted
-of $K_d-1$ with respect to the original symbol sequence $a_k$ because
-the algorithm waits for the trellis diagram to be full before
-detecting the first symbol. There is also a delay of $D$ samples
-introduced by the filter $c$.
+is equally likely. From this we proceed iteratively, calculating at
+each iteration
+\section{MaxLogMAP}
 
-After trying some values we pick a trellis depth equal to ten times
-the length of the state: $K_d = 30$. Since the input signal is a lot
-longer than $K_d$, when the trellis diagram is full and we get a new
-sample $\rho_k$, we delete the oldest values from the path metrics and
-the survivor sequences. Since the path metrics are non-decreasing at a
-certain point they will overflow, so we shift them back every 5000
-samples by subtracting the smallest value from all the others.
-
-As can also be seen in Fig.~\ref{plot:pe_all}, with a SNR of 11 dB we
-get a symbol error probability $P_e = 3.77 \cdot 10^{-4}$.
-\section{Max-Log-MAP}
-In the Max-Log-Map receiver we use the same receiver structure and the
-same parameters $t_0 = 33\frac{T}{4}$, $M1 = M2 = 3$, $D=1$ of
-section~\ref{sec:viterbi} so the overall system response $\psi(kT)$ is
-the same one of Fig.~\ref{plot:psi_dfe} and we set the same state
-length used in the previous case: $L_1 = 0$, $L_2 = M_2 = 3$.
-
-The state used in this algorithm is
-\begin{equation}
-  \vec{s}_k = (a_k,a_{k-1}, a_{k-2}) \in \mathcal{S} = \{ \vec{\sigma}_1, \vec{\sigma}_2, \dots \vec{\sigma}_{64} \}
-\end{equation}
-where the possible states $\vsigma_i$ are the permutations of three
-symbols taken from the alphabet $\mathcal{A}$.
-
-Like in the Viterbi case we pre-compute the possible transitions
-$\vsigma_i \rightarrow \vsigma_j$ and the values of $u_k =
-f(\vsigma_j, \vsigma_i)$. We don't precompute the channel transition
-metrics $c_k(j | i)$ because the algorithm ran at an acceptable speed
-computing them when needed.
-
-We process an input signal with the FBA algorithm by splitting it into
-smaller chunks of $K_{in} = 600$ samples, which are overlapped by
-$2(K_d-1)$ samples. We then run the algorithm on these chunks and
-discard the first and the last $K_d-1$ samples from each output symbol
-sequence and join them together to have the final output.  In this way
-we limit the amount of memory needed to process a long signal and, by
-discarding the first and last output symbols, we use the same number
-of transitions to detect the symbol at every sample.
-
-The forward procedure is very similar to the Viterbi algorithm: after
-we have initialized the values of the logarithm of the forward metric
-\begin{equation}
-  \tilde{f}_{-1}(j) = 0 \qquad j=1,2,\dots 64
-\end{equation}
-since we don't know the initial state of the system, at each iteration
-and for each state $j$
-\begin{itemize}
-  \item we compute the transition metrics
-    \begin{equation}
-      c_k(j|l) = -\abs{\rho_k - u_k}^2
-    \end{equation}
-    for every $l$ such that there is a transition $\vsigma_l
-    \rightarrow \vsigma_j$,
-  \item we compute the next possible values of $\tilde{f}_k(j)$
-    \begin{equation}
-      \tilde{f}_{k-1}(l) + c_k(j|l) \qquad \forall l : \vsigma_l
-      \rightarrow \vsigma_j ,
-    \end{equation}
-  \item we pick the maximum of these metrics
-    \begin{equation}
-       \tilde{f}_{k}(j)  = \max_{l} \left[ \tilde{f}_{k-1}(l) + c_k(j|l) \right] 
-    \end{equation}
-    and save it as the forward metric of state $j$ at time $k$. This
-    time we do not need to store the survivor sequence.
-\end{itemize}
-We stop the algorithm after $K_{in} - K_d$ steps because the rest will
-not be used and we store the last forward metrics $\tilde{f}_{K_{in} -
-  K_d}(j)$ because they will be the initial metrics for the following
-chunk of samples.
-
-We then apply a similar procedure to compute the logarithm of the
-backward metrics $\tilde{b}_k(i)$. In this case we can not reuse the
-metrics for the next chunk of samples because they depend on the last
-received sample, so we always start from
-\begin{equation}
-  \tilde{b}_{K_{in}}(i) = 0 \qquad i = 1,2,\dots64 .
-\end{equation}
-Then:
-\begin{itemize}
-\item we compute the transition metrics
-  \begin{equation}
-    c_{k+1}(m|i) = -\abs{\rho_{k+1} - u_{k+1}}^2
-  \end{equation}
-  for every $m$ such that there is a transition $\vsigma_i \rightarrow
-  \vsigma_m$,
-  \item we compute the possible values of the backward metric at the
-    previous instant $\tilde{b}_k(i)$
-    \begin{equation}
-      \tilde{b}_{k+1}(m) + c_{k+1}(m|i) \qquad \forall m : \vsigma_i
-      \rightarrow \vsigma_m ,
-    \end{equation}
-    \item we pick the maximum of these metrics
-    \begin{equation}
-       \tilde{b}_{k}(i)  = \max_{m} \left[ \tilde{b}_{k+1}(m) + c_{k+1}(m|i) \right] 
-    \end{equation}
-    and save it as the backward metric of state $i$ at time $k$.
-\end{itemize}
-
-When we have both the forward and backward metrics we can sum them to
-get the logarithm of the state metric
-\begin{equation}
-  \tilde{v}_k(i) = \tilde{f}_k(i) + \tilde{b}_k(i) \qquad i=1,2,\dots64 ,
-\end{equation}
-apply the Max-Log-Map approximation to compute the log-likelihood and
-decide on the received symbols
-\begin{align}
-  \tilde{l}_k(\beta) &= \max_{\substack{i=1,2\dots64 \\ [\vsigma_i]_1 = \beta}} \tilde{v}_k(i) \\
-  \hat{a}_k &= \argmax_{\beta \in \mathcal{A}} \tilde{l}_k(\beta)
-\end{align}
-Like in the Viterbi algorithm the output sequence is shifted of $K_d
--1$ and there is the delay $D$ introduced by the filter $c$. For the
-trellis depth we pick the same value of the Viterbi case $K_d = 30$.
-
-As can also be seen in Fig.~\ref{plot:pe_all}, with a SNR of 11 dB we
-get a symbol error probability $P_e = 3.9 \cdot 10^{-4}$.
-\section{Symbol error comparison}
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{matlab/pe_plot}
-  \caption{Comparison of the symbol error with different receivers}
-  \label{plot:pe_all}
-\end{figure}
 \end{document}
