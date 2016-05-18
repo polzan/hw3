@@ -460,5 +460,25 @@ that uses a threshold detector.
   \caption{Comparison of the symbol error with different receivers}
   \label{plot:pe_all}
 \end{figure}
+All the simulations ran with a uniformly distributed symbol sequence
+of length 300000, in order to have a 95\% confidence interval of
+$[0.5P_e, 2P_e]$ in the cases with the lowest $Pe = 10^{-4}$.
 
+In the plots we can see that the two best performing algorithms are
+Viterbi and FBA and their $P_e$ is very close to the simulated and the
+theoretical bounds. After {\color{red}11 dB} there are points that lie
+below these limits, but this is due to the variance of the estimate
+and if we ran the simulation using longer input sequences, these
+points would return above the bounds. Since the two algorithms give
+values of the $P_e$ very close to each other but the FBA requires
+roughly twice the memory and execution time, the Viterbi algorithm
+would be preferable.
+
+The next best receivers are those with the matched filter, where the
+DFE gives slightly better performances.
+
+The receivers with the anti-aliasing filters are the worst performing
+ones, but this is expected since in the other receiver schemes we use
+a filter that is matched exactly to the response of the channel while
+here the DFE has to assume this role as well.
 \end{document}
