@@ -7,7 +7,7 @@ M2 = 2;
 D = 1;
 
 % Viterbi params
-trellis_depth = 30;
+trellis_depth = 20;
 L1 = 0; % No precursors
 L2 = M2; % Same postcursors of the DFE
 
