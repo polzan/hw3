@@ -3,7 +3,7 @@ function [Pbit, Pe, err_count, sym_err_count] = simulate_maxlogmap(Nbits, SNR)
 t0 = 33;
 t0_sampled = floor(t0/4);
 M1 = 3;
-M2 = 3;
+M2 = 2;
 D = 1;
 
 % MaxLogMap params

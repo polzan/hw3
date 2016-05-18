@@ -2,7 +2,7 @@ function [Pbit, Pe, err_count, sym_err_count] = simulate_le(Nbits, SNR)
 % Parameters
 t0 = 33;
 t0_sampled = floor(t0/4);
-M1 = 4;
+M1 = 3;
 D = 1;
 
 Nbits_w_transient = Nbits + 2*t0_sampled + 2*D;

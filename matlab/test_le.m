@@ -5,7 +5,7 @@ M1 = 3;
 M2 = 0;
 D = 1;
 
-l_estim = 1e5 + ceil(floor(t0/4)*2+ D*2);
+l_estim = 1e4 + ceil(floor(t0/4)*2+ D*2);
 
 SNR = 11;
 SNR_lin = 10^(SNR/10);
