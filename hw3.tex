@@ -67,7 +67,7 @@ by a factor of 4 and filter it using the transfer function
 \begin{equation}
   Q_c(z) = \frac{\beta z^{-10}}{1 - \alpha z^{-1}}
 \end{equation}
-that models the {\color{red} combination of the modulator filter and
+that models the {\color{red} series-combination of the modulator filter and
   the channel}.  Since we will need it to have a finite length,
 because the matched filter would otherwise not be causal, we truncate
 its impulse response at $n=33$ (when $n \geq 34$, $q_c(nT/4) \leq
@@ -88,7 +88,7 @@ Fig.~\ref{plot:Qf} there is the corresponding frequency response.
   \label{plot:Qf}
 \end{figure}
 
-We then add {\color{red} the channel noise} $w_c(nT/4)$, assumed to be
+We then add {\color{red} the channel (maybe without "channel"?) noise} $w_c(nT/4)$, assumed to be
 a complex gaussian with power spectral density $\mathcal{P}_{w_c}(f) =
 N_0$ in the band of the signal $S_c(nT/4)$. The noise power and PSD
 can be obtained from the SNR:
@@ -101,6 +101,81 @@ symbol sequence is $\sigma^2_a = 2$.
 
 The signal that gets to each one of the following receivers is
 $r_c(nT/4) = S_c(nT/4) + w_c(nT/4)$.
+
+\section{Matched filters}
+To implement the receivers scheme a) and b), knowing the equivalent trasmitter impulse response $q_c$, we firstly designed the $g_m$ filter by usign the relation, 
+\begin{align}
+  g_m(n T/4) &= q_c^* (\hat{t_0}-n T/4) & \hat{t_0} = 33 T/4&
+\end{align}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{matlab/plot_gm}
+  \caption{Match filter impulse response}
+  \label{plot:gm}
+\end{figure}
+\newpage
+
+{\color{red}where we choose the minimum value of $\hat{t_0}$} in order to have a causal filter. 
+Then, by inspecting the overall impulse response before the sampler $q_r(n T/4) = (q_c * g_m)(n T/4)$, we find a proper value of $t_0$ that in this case is equal to $33T/4$ ($\Bar{t_0} = 33$). With this choice we are sampling the riceived signal $x(nT/4) = (r_c*gm)(nT/4)$ in the peak of $q_r$ {\color{red} in order to reach the best performances}.
+Now we discuss the two configuration separately:
+\begin{itemize}
+\item[a)] to implement the Linear Equalizer we estmate the optimum coefficients of the filter $c$ through the relation:
+\begin{align}
+\vec{c}_{opt}& = R^{-1} \vec{p}& 
+\end{align} 
+in which 
+\begin{align}
+&\vec{p} = \sigma_a^2 h_{D-p}^*&	
+\end{align}
+where $h$ is the overall impulse response $q_r$ sampled at $T$ and $\sigma_a^2$ is the power of the transmitted simbols. For the matrix $R$ the following relation holds in this case:
+\begin{align}
+ R_{p,q} &= \sigma^2_a \sum_{j=-N_1}^{N_2}h_jh^*_{j-(p-q)} + r_{\tilde{w}}(p-q) & p,q = 0,1,.....,M1-1&
+\end{align}
+in which $r_{\tilde{w}}(k) = N_0 r_{g_M}(k)$; with $r_{g_M}(k)$ the deterministic autocorrelation of $g_m$.
+The two parameters in this configuration are the delay D and the length of the  equalizer M1. By trying some configurations we find that a suitable value for D is 1 and for ????M1 is 3????. If we increase more the value of M1 we don't have a significant improvement in the performances, so we decided to stop here. {\color{red} For $D\neq 1$ indeed the sistem starts to work significantly worse}. With this settings we find the behaviour of the overall system impulse response $\psi(p) = \sum_{l=0}^{M1-1} c_l h_{p-l}$ showed in Fig.~\ref{plot:psi_le}. 
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{matlab/plot_psi_le}
+  \caption{LE overall impulse response}
+  \label{plot:psi_le}
+\end{figure}
+
+\newpage In conclusion we have set: D = 1, ???M1 = 3???, $\Bar{t_0} = 33$. 
+\newline We have found: $\vec{c}_{opt} = [-0,2016, 1,0601, -0,2016]^T$,{\color{red} $\psi(D) = 0.9789$, $\psi(D-1) = 0.0038$, $\psi(D+1) = 0.004$ (the other values of $\psi$ are $\leq 10^{-5}$ ).}
+
+\item[b)] To implement the filter $c$ of the Decision Filter Equalizer we used the same approach of the previous point (Equation (5) ). The only difference is the computation of R that it's done using
+
+\begin{align}
+ R_{p,q} &= \sigma^2_a\left( \sum_{j=-N_1}^{N_2}h_jh^*_{j-(p-q)} - \sum_{j=1}^{M_2}h_{j+D-q}h^*_{j+D-p} \right) + r_{\tilde{w}}(p-q)
+\end{align}
+
+in which M2 is the length of the feedback filter $b$ and the others quantities are the same as before.
+The coefficients of the last filter are finally estimate using the relation 
+\begin{align}
+b_i &= - \psi_{D+i}&  i &= 1,2,....,M2
+\end{align}
+Also in this case we have choose a value of D = 1 but now the first filter can be simpler because the postcursus are equilized by $b$. In fact, trying the various configuration we have found that M1 = M2 = 2 it's enough to our purposes. If we increase any of the two quantities the performance are quite the same, but, onthe other hand, if we decrease M1 or M2 the error probability starts to increase. We report the behaviour of $\psi$ in Fig. \ref{plot:psi_dfe_1} and the final configuration we used:
+M1 = 2, M2 = 2, D = 1, $\Bar{t_0} = 33$, $\vec{c}_{opt} = [-0.2017, 1.0202]^T$, $\vec{b} = [-0.1947, -0.0398]^T$. The match filter and the configuration of the sampler are the same of point a).
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{matlab/plot_psi_dfe}
+  \caption{DFE $\psi(kT)$ behaviour}
+  \label{plot:psi_dfe_1}
+\end{figure}
+
+
+\end{itemize}
+
+
+
+
+\section{Antialiasing filter}
+
+
+
 \section{Viterbi}
 In the Viterbi receiver we use the same filter $g_M$ of
 sections~\ref{sec:le}~and~\ref{sec:dfe}, matched to the response of
