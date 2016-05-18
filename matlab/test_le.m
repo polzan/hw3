@@ -1,9 +1,9 @@
 close all;
 
 t0 = 33;
-M1 = 5;
+M1 = 3;
 M2 = 0;
-D = 2;
+D = 1;
 
 l_estim = 1e5 + ceil(floor(t0/4)*2+ D*2);
 
