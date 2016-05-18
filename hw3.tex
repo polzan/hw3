@@ -36,8 +36,11 @@
 \newcommand{\Prob}[1]{\operatorname{P}\left[#1\right]}
 \newcommand{\ProbC}[2]{\operatorname{P}\left[#1\middle|#2\right]}
 \newcommand{\ind}[1]{\operatorname{\mathbbm{1}}\left\{#1\right\}}
+\DeclareMathOperator*{\argmin}{argmin}
 \newcommand{\distr}[0]{\sim}
 \newcommand{\unif}[1]{\mathcal{U}_{#1}}
+
+\newcommand{\vsigma}[0]{\vec{\sigma}}
 
 \author{Enrico Polo \and Riccardo Zanol}
 \title{Homework 3}
@@ -102,7 +105,7 @@ symbol sequence is $\sigma^2_a = 2$.
 The signal that gets to each one of the following receivers is
 $r_c(nT/4) = S_c(nT/4) + w_c(nT/4)$.
 \section{Viterbi}
-In the Viterbi receiver we use the same filter $g_M$ of
+In the Viterbi receiver we use the same filter $g_M(nT/4) = q_c^*((\overline{t_0} - n)T/4)$ of
 sections~\ref{sec:le}~and~\ref{sec:dfe}, matched to the response of
 the transmitter and the channel $q_c$, {\color{red} to maximize the
   SNR before the equalizer} and we also sample in the same way
@@ -131,32 +134,89 @@ The overall system response before the Viterbi detector is $\psi(kT) =
 \end{figure}
 We can see that the filter $c$ has eliminated the effect of the
 precursors, so the Viterbi algorithm only has to take into account the
-three postcursors of $\psi$ and its parameters will be $L_1 = 0$, $L_2
-= 3$ and $D=1$ because the peak is shifted by $1T$.
+three postcursors of $\psi$: its parameters will be $L_1 = 0$, $L_2 =
+M2 = 3$ and, since the peak is shifted by $1T$, we set $D=1$.
 
 To implement the Viterbi algorithm we first define the states
-$\vec{s}_k = (a_k,a_{k-1}, a_{k-2}) \in \mathcal{S}$ that can be any
-combination of three symbols taken from the constellation
-$\mathcal{A}$, then we precompute:
+\begin{equation}
+  \vec{s}_k = (a_k,a_{k-1}, a_{k-2}) \in \mathcal{S} = \{ \vec{\sigma}_1, \vec{\sigma}_2, \dots \vec{\sigma}_{64} \}
+\end{equation}
+that can be any combination of three symbols taken from the
+constellation $\mathcal{A}$, then we precompute:
 \begin{itemize}
   \item if it is possible to have a transition from a state
     $\vec{s}_{k-1} = \vec{\sigma}_i$ to the successive state
     $\vec{s}_{k} = \vec{\sigma}_j$, for every pair of states
     $\vec{\sigma}_j$, $\vec{\sigma}_i$    
-\item the value of
+\item the value of the sample we would receive if
+  $(\vec{s}_k,\vec{s}_{k-1})$ were equal to $(\vsigma_j, \vsigma_i)$
   \begin{equation}
     u_k = f(\vec{\sigma}_j, \vec{\sigma}_i) =
     \sum_{n=-L_1}^{L_2}\psi_{n+D}a_{k-n}
   \end{equation} wherever a transition from $\vec{\sigma}_i$ to $\vec{\sigma}_j$ is
   possible.
 \end{itemize}
-Then we initialize the path metric values at state $k=-1$
+We then initialize the path metric values at state $k=-1$
 \begin{equation}
-  \Gamma_{k-1}(\vec{s}_{k-1} = \vec{\sigma}_j) = 0 \qquad \forall j
+  \Gamma(\vec{s}_{k-1} = \vec{\sigma}_j) = 0 \qquad j=1,2,\dots64
 \end{equation}
 because we have no information on the state of the system, so each one
-is equally likely. From this we proceed iteratively, calculating at
-each iteration
+is equally likely, and start to process the input signal $\rho_k$
+sample by sample following the Viterbi algorithm. At every iteration
+we compute for each state $\sigma_j$:
+\begin{itemize}
+\item the branch metrics
+  \begin{equation}
+    \abs{\rho_k - u_k}^2 \qquad \forall u_k = f(\vsigma_j,\vsigma_i)
+  \end{equation}
+    where it is possible to move from $\vsigma_i$ to $\vsigma_j$,
+  \item the corresponding path metrics
+    \begin{equation}
+      \Gamma(\vec{s}_{k-1} = \vec{\sigma}_i) + \abs{\rho_k - u_k}^2 \qquad \forall \vsigma_i ,
+    \end{equation}
+  \item the path metric that we assign to state $\vsigma_j$ in the
+    current iteration $k$
+    \begin{equation}
+      \Gamma(\vec{s}_k = \vec{\sigma}_j) = \min_{\vsigma_i} \Gamma(\vec{s}_{k-1} = \vec{\sigma}_i) + \abs{\rho_k - u_k}^2
+    \end{equation}
+    and we also store the state that minimizes the path metric,
+    ${\vsigma_i}_{opt}$, in the survivor sequence
+    \begin{equation}
+      \mathcal{L}(\vec{s}_k = \vsigma_j) = (\mathcal{L}(\vec{s}_{k-1} = {\vsigma_i}_{opt}), \vsigma_j) .
+    \end{equation}
+\end{itemize}
+After a number of iterations equal to the maximum desired depth of the
+trellis diagram, $K_d$ we select
+\begin{equation}
+  {\vsigma_j}_{opt} = \argmin_{\vsigma_j} \Gamma(\vec{s}_{K_d-1} = \vec{\sigma}_j)
+\end{equation}
+and follow the survivor sequence $\mathcal{L}(\vec{s}_{K_d-1} =
+{\vsigma_j}_{opt})$ backward until we reach the first state,
+{\color{red}which is the most likely to be the actual state of the
+  system at time $k-K_d+1$. Finally we can get the detected symbol
+  $\hat{a}_{k+K_d-1+D}$ from the first component of the state}, which
+is shifted with respect to the original symbol sequence $a_k$ because
+the algorithm waits for the trellis diagram to be full before
+detecting the first symbol. {\color{red}There is also a delay of $D$
+  samples introduced by the filter $c$}.
+
+After trying some values we pick a trellis depth equal to ten times
+the length of the state: $K_d = 30$. Since the input signal is a lot
+longer than $K_d$, when the trellis diagram is full and we get a new
+sample $\rho_k$, we delete the oldest values from the path metrics and
+the survivor sequences. Since the path metrics are non-decreasing at a
+certain point they will overflow, so we shift them back every 5000
+samples by subtracting the smallest value from all the others.
+
+As can also be seen in Fig.~\ref{plot:pe_all}, with a SNR of 11 dB we
+get a symbol error probability $P_e = 3.77 \cdot 10^{-4}$.
 \section{MaxLogMAP}
 
+\section{Symbol error comparison}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{matlab/pe_plot}
+  \caption{Comparison of the symbol error with different receivers}
+  \label{plot:pe_all}
+\end{figure}
 \end{document}
