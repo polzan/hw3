@@ -137,7 +137,7 @@ where $h$ is the overall impulse response $q_r$ sampled at $T$ and $\sigma_a^2$ 
  R_{p,q} &= \sigma^2_a \sum_{j=-N_1}^{N_2}h_jh^*_{j-(p-q)} + r_{\tilde{w}}(p-q) & p,q = 0,1,.....,M1-1&
 \end{align}
 in which $r_{\tilde{w}}(k) = N_0 r_{g_M}(k)$; with $r_{g_M}(k)$ the deterministic auto-correlation of $g_m$.
-The two parameters in this configuration are the delay D and the length of the  equalizer M1. By trying some configurations we find that a suitable value for D is 1 and for ????M1 is 3????. If we increase more the value of M1 we don't have a significant improvement in the performances, so we decided to stop here. {\color{red} For $D\neq 1$ indeed the system starts to work significantly worse}. With this settings we find the behaviour of the overall system impulse response $\psi(p) = \sum_{l=0}^{M1-1} c_l h_{p-l}$ showed in Fig.~\ref{plot:psi_le}. 
+The two parameters in this configuration are the delay D and the length of the  equalizer M1. By trying some configurations we find that a suitable value for D is 1 and for M1 is 3. If we increase more the value of M1 we don't have a significant improvement in the performances, so we decided to stop here. {\color{red} For $D\neq 1$ indeed the sistem starts to work significantly worse}. With this settings we find the behaviour of the overall system impulse response $\psi(p) = \sum_{l=0}^{M1-1} c_l h_{p-l}$ showed in Fig.~\ref{plot:psi_le}. 
 
 \begin{figure}[h]
   \centering
@@ -146,7 +146,7 @@ The two parameters in this configuration are the delay D and the length of the  
   \label{plot:psi_le}
 \end{figure}
 
-\newpage In conclusion we have set: D = 1, ???M1 = 3???, $\Bar{t_0} = 33$. 
+\newpage In conclusion we have set: D = 1, M1 = 3, $\Bar{t_0} = 33$. 
 \newline We have found: $\vec{c}_{opt} = [-0,2016, 1,0601, -0,2016]^T$,{\color{red} $\psi(D) = 0.9789$, $\psi(D-1) = 0.0038$, $\psi(D+1) = 0.004$ (the other values of $\psi$ are $\leq 10^{-5}$ ).}
 
 \item[b)] To implement the filter $c$ of the Decision Filter Equalizer we used the same approach of the previous point (Equation (5) ). The only difference is the computation of R that it's done using
@@ -160,8 +160,8 @@ The coefficients of the last filter are finally estimate using the relation
 \begin{align}
 b_i &= - \psi_{D+i}&  i &= 1,2,....,M2
 \end{align}
-Also in this case we have choose a value of D = 1 but now the first filter can be simpler because the postcursors are equalized by $b$. In fact, trying the various configuration we have found that M1 = M2 = 2 it's enough to our purposes. If we increase any of the two quantities the performance are quite the same, but, on the other hand, if we decrease M1 or M2 the error probability starts to increase. We report the behaviour of $\psi$ in Fig. \ref{plot:psi_dfe_1} and the final configuration we used:
-M1 = 2, M2 = 2, D = 1, $\Bar{t_0} = 33$, $\vec{c}_{opt} = [-0.2017, 1.0202]^T$, $\vec{b} = [-0.1947, -0.0398]^T$. The match filter and the configuration of the sampler are the same of point a).
+Also in this case we have choose a value of D = 1 but now the first filter can be simpler because the postcursus are equilized by $b$. In fact, trying the various configuration we have found that M1 = 3 and M2 = 2 it's enough to our purposes. If we increase any of the two quantities the performance are quite the same, but, onthe other hand, if we decrease M1 or M2 the error probability starts to increase. We report the behaviour of $\psi$ in Fig. \ref{plot:psi_dfe_1} and the final configuration we used:
+M1 = 3, M2 = 2, D = 1, $\Bar{t_0} = 33$, $\vec{c}_{opt} = [-0.2017, 1.0234, -0.0158]^T$, $\vec{b} = [-0.1823, -0.0367]^T$. The match filter and the configuration of the sampler are the same of point a).
 
 \begin{figure}[h]
   \centering
@@ -177,36 +177,40 @@ M1 = 2, M2 = 2, D = 1, $\Bar{t_0} = 33$, $\vec{c}_{opt} = [-0.2017, 1.0202]^T$, 
 
 
 \section{Anti-aliasing filters}
-c) For the anti-aliasing filter that works 
+\begin{itemize}
+\item 
+
+For the configuration c) we have usa a lowpass linear FIR filter of order 20 to build $gaa$, whose frequency response and impulse response are shown in Fig. \ref{plot:Gaa2} and Fig. \ref{plot:gaa2} respectively. 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.7\textwidth]{matlab/plot_gaa_freq}
-  \caption{Frequency response of $g_{aa}$ in dB}
+  \caption{Frequency response of $g_{aa}$ in dB (C @T/2)}
   \label{plot:Gaa2}
 \end{figure}
-\begin{figure}[]
+\begin{figure}[h]
   \centering
   \includegraphics[width=0.7\textwidth]{matlab/plot_gaa}
-  \caption{$g_{aa}$ impulse response}
+  \caption{$g_{aa}$ impulse response (C @T/2)}
   \label{plot:gaa2}
 \end{figure}
 
-\begin{figure}[h]
+ 
+
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.7\textwidth]{matlab/plot_psi_aa}
-  \caption{$\psi(kT)$ behaviour (AA @T/2)}
-  \label{plot:Gaa}
+  \caption{$\psi(kT)$ behaviour (AA @T/2) (C @T/2)}
+  \label{plot:psi_aa}
 \end{figure}
-
-
-
+Proceeding like in the previous points we inspected the impulse response before the sampler $q_r(n T/4) = (q_c * g_m)(n T/4)$ and we find that, to sample in the peak, we must choose $\Bar{t_0} = 20$, but in this case we sample every T/2. The design of the optimum filter $c$ it's done as in case b), with the through the equation (8), then we downsample the received signal by a factor $F_0 = 2$ to return at time T. Finally to build the $b$ filter we used the relation $b_i = - \psi_{2(D+i}$ {\color{red}that takes into account the fact that the filter $c$ works at T/2 but after the downsampler we have a simbol (and a postcursus of psi that needs to be cancelled) every T seconds}. In our tries we find the following settings as the best: M1 = 3, M2 = 2, D = 1, $\Bar{t_0} = 20$ and we obtained: $\vec{c}_{opt} = [0.0012, 0.0451, 0.2879]^T$ $\vec{b} = [-0.0518, -0.0086]^T$. The correspondent $\psi$ at time T is showed in Fig. \ref{plot:psi_aa}.
 \newpage
-d)
+\item
+To implement setting d) we find that using an order 10, linear FIR, lowpass filter as $g_{aa}$ we can get good performances. Also in this case the frequency response and impulse response are showed in Fig. \ref{plot:gaa_freq_T} and Fig. \ref{plot:gaa}. using a different size for the anti-aliasing filter we need to recompute the optimal value of $\Bar{t_0}$ and we find that it must be equal to 16. This configuration is similar to the previous one, but we don't have to account for the different timing between filters $c$ and $b$. So, as usual we used eq. (8) to estimate the $\vec{c}_{opt}$ and then we find $b_i = -\psi_{D+i}$. Making some tests with this setup we fiin the following results: M1 = 2, D = 1, M2 = 3, $\Bar{t_0} = 16$, $\vec{c}_{opt} = [0.0013, 0.0914]^T$, $\vec{b} = [-0.0095, -0.0019, -0.0004]^T$ . The behaviour of $\psi$ is showed in Fig. \ref{plot:gaa_psi_T}.
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.7\textwidth]{matlab/plot_gaa_freq_T}
   \caption{Frequency response of $g_{aa}$ in dB}
-  \label{plot:Gaa}
+  \label{plot:gaa_freq_T}
 \end{figure}
 
 \begin{figure}[h]
@@ -220,10 +224,10 @@ d)
   \centering
   \includegraphics[width=0.7\textwidth]{matlab/plot_psi_aa_T}
   \caption{$\psi(kT)$ behaviour (AA @T)}
-  \label{plot:Gaa}
+  \label{plot:gaa_psi_T}
 \end{figure}
 
-
+\end{itemize}
 \section{Viterbi}
 \label{sec:viterbi}
 In the Viterbi receiver we use the same filter $g_M(nT/4) = q_c^*((\overline{t_0} - n)T/4)$ of
