@@ -64,9 +64,9 @@
 \maketitle
 \section{Transmitter}
 In the transmitter we generate the sequence of symbols $a_k$ by
-producing a uniformly distributed sequence of bits twice as long and
+producing a uniformly distributed sequnce of bits twice as long and
 mapping each pair of bits to a symbol of the QPSK constellation $
-\mathcal{A} = \{(1+j),(1-j),(-1-j),(-1+j)\}$. Then we up-sample $a_k$
+\mathcal{A} = \{(1+j),(1-j),(-1-j),(-1+j)\}$. Then we upsample $a_k$
 by a factor of 4 and filter it using the transfer function
 \begin{equation}
   Q_c(z) = \frac{\beta z^{-10}}{1 - \alpha z^{-1}}
@@ -107,7 +107,7 @@ The signal that gets to each one of the following receivers is
 $r_c(nT/4) = S_c(nT/4) + w_c(nT/4)$.
 
 \section{Matched filters}
-To implement the receivers scheme a) and b), knowing the equivalent transmitter impulse response $q_c$, we firstly designed the $g_m$ filter by using the relation, 
+To implement the receivers scheme a) and b), knowing the equivalent trasmitter impulse response $q_c$, we firstly designed the $g_m$ filter by usign the relation, 
 \begin{align}
   g_m(n T/4) &= q_c^* (\hat{t_0}-n T/4) & \hat{t_0} = 33 T/4&
 \end{align}
@@ -121,10 +121,10 @@ To implement the receivers scheme a) and b), knowing the equivalent transmitter 
 \newpage
 
 {\color{red}where we choose the minimum value of $\hat{t_0}$} in order to have a causal filter. 
-Then, by inspecting the overall impulse response before the sampler $q_r(n T/4) = (q_c * g_m)(n T/4)$, we find a proper value of $t_0$ that in this case is equal to $33T/4$ ($\Bar{t_0} = 33$). With this choice we are sampling the received signal $x(nT/4) = (r_c*gm)(nT/4)$ in the peak of $q_r$ {\color{red} in order to reach the best performances}.
+Then, by inspecting the overall impulse response before the sampler $q_r(n T/4) = (q_c * g_m)(n T/4)$, we find a proper value of $t_0$ that in this case is equal to $33T/4$ ($\Bar{t_0} = 33$). With this choice we are sampling the riceived signal $x(nT/4) = (r_c*gm)(nT/4)$ in the peak of $q_r$ {\color{red} in order to reach the best performances}.
 Now we discuss the two configuration separately:
 \begin{itemize}
-\item[a)] to implement the Linear Equalizer we estimate the optimum coefficients of the filter $c$ through the relation:
+\item[a)] to implement the Linear Equalizer we estmate the optimum coefficients of the filter $c$ through the relation:
 \begin{align}
 \vec{c}_{opt}& = R^{-1} \vec{p}& 
 \end{align} 
@@ -132,11 +132,11 @@ in which
 \begin{align}
 &\vec{p} = \sigma_a^2 h_{D-p}^*&	
 \end{align}
-where $h$ is the overall impulse response $q_r$ sampled at $T$ and $\sigma_a^2$ is the power of the transmitted symbols. For the matrix $R$ the following relation holds in this case:
+where $h$ is the overall impulse response $q_r$ sampled at $T$ and $\sigma_a^2$ is the power of the transmitted simbols. For the matrix $R$ the following relation holds in this case:
 \begin{align}
  R_{p,q} &= \sigma^2_a \sum_{j=-N_1}^{N_2}h_jh^*_{j-(p-q)} + r_{\tilde{w}}(p-q) & p,q = 0,1,.....,M1-1&
 \end{align}
-in which $r_{\tilde{w}}(k) = N_0 r_{g_M}(k)$; with $r_{g_M}(k)$ the deterministic auto-correlation of $g_m$.
+in which $r_{\tilde{w}}(k) = N_0 r_{g_M}(k)$; with $r_{g_M}(k)$ the deterministic autocorrelation of $g_m$.
 The two parameters in this configuration are the delay D and the length of the  equalizer M1. By trying some configurations we find that a suitable value for D is 1 and for M1 is 3. If we increase more the value of M1 we don't have a significant improvement in the performances, so we decided to stop here. {\color{red} For $D\neq 1$ indeed the sistem starts to work significantly worse}. With this settings we find the behaviour of the overall system impulse response $\psi(p) = \sum_{l=0}^{M1-1} c_l h_{p-l}$ showed in Fig.~\ref{plot:psi_le}. 
 
 \begin{figure}[h]
