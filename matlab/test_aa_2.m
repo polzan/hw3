@@ -84,10 +84,10 @@ psi = conv(c,qR);
 % xlabel('k [@ T/4]');
 % ylabel('psi(kT)');
 % print('plot_psi_aa_T4', '-depsc');
-psi = downsample(psi,4,0);
+psi = downsample(psi,2,0);
 figure;
-stem((0:length(psi)-1) - t0_sampled / 2, psi);
-xlabel('k [@ T]');
+stem((0:length(psi)-1) - t0_sampled , psi);
+xlabel('k [@ T/2]');
 ylabel('psi(kT)');
 print('plot_psi_aa', '-depsc');
 

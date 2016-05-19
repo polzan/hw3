@@ -123,7 +123,6 @@ To implement the receivers scheme a) and b), knowing the equivalent trasmitter i
   \caption{Match filter impulse response}
   \label{plot:gm}
 \end{figure}
-\newpage
 
 where we choose the smallest value we can of $\hat{t_0}$ that gives us a causal filter. 
 Then, by inspecting the overall impulse response before the sampler $q_r(n T/4) = (q_c * g_m)(n T/4)$, we find a proper value of $t_0$ that in this case is equal to $33T/4$ ($\Bar{t_0} = 33$). With this choice we are sampling the riceived signal $x(nT/4) = (r_c*gm)(nT/4)$ in the peak of $q_r$ in order to reach the best performances.
@@ -232,7 +231,7 @@ For the configuration c) we have usa a lowpass linear FIR filter of order 20 to 
 
  
 
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \includegraphics[width=0.6\textwidth]{matlab/plot_psi_aa}
   \caption{Sampled $\psi(kT)$ behaviour}
@@ -283,7 +282,7 @@ section~\ref{sec:dfe}:
 where $h = q_c * g_M$ and $r_{\tilde{w}}(n) = N_0 r_{g_M}(nT)$. The
 parameters that we choose are the same as in section \ref{sec:dfe}:
 $M1 = 3$, $M2 = 2$, $D=1$ and the filter coefficients are the same ones of
-Tab.~\ref{tab:dfe_c}.
+Tab.~\ref{tab:c_dfe}.
 
 The overall system response before the Viterbi detector is $\psi(kT) =
 (q_c * g_M * c)_{(kT)}$ and it is shown in Fig.~\ref{plot:psi_dfe}.
@@ -369,8 +368,6 @@ the survivor sequences. Since the path metrics are non-decreasing at a
 certain point they will overflow, so we shift them back every 5000
 samples by subtracting the smallest value from all the others.
 
-As can also be seen in Fig.~\ref{plot:pe_all}, with a SNR of 11 dB we
-get a symbol error probability {\color{red}$P_e = 3.77 \cdot 10^{-4}$.}
 \section{Max-Log-MAP}
 In the Max-Log-Map receiver we use the same receiver structure and the
 same parameters $t_0 = 33\frac{T}{4}$, $M_1 = 3$, $M_2 = 2$, $D=1$ of
@@ -474,8 +471,6 @@ decide on the received symbols
 Like in the Viterbi algorithm the output sequence is shifted of $K_d
 -1$ and there is the delay $D$ introduced by the filter $c$.
 
-As can also be seen in Fig.~\ref{plot:pe_all}, with a SNR of 11 dB we
-get a symbol error probability {\color{red}$P_e = 3.9 \cdot 10^{-4}$.}
 \section{Symbol error comparison}
 In Fig.~\ref{plot:pe_all} we plot the symbol errors obtained by the
 simulation of the six receivers with $\Gamma$ between 8~and~14 dB
@@ -505,7 +500,7 @@ $[0.5P_e, 2P_e]$ in the cases with the lowest $Pe = 10^{-4}$.
 
 In the plots we can see that the two best performing algorithms are
 Viterbi and FBA and their $P_e$ is very close to the simulated and the
-theoretical bounds. After {\color{red}11 dB} there are points that lie
+theoretical bounds. Around 11 dB there are points that lie
 below these limits, but this is due to the variance of the estimate
 and if we ran the simulation using longer input sequences, these
 points would return above the bounds. Since the two algorithms give
@@ -514,7 +509,8 @@ roughly twice the memory and execution time, the Viterbi algorithm
 would be preferable.
 
 The next best receivers are those with the matched filter, where the
-DFE gives slightly better performances.
+DFE gives slightly better performances. They have the advantage of
+being very fast, compared to the Viterbi and Max-Log-MAP algorithms.
 
 The receivers with the anti-aliasing filters are the worst performing
 ones, but this is expected since in the other receiver schemes we use
