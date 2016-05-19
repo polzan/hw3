@@ -127,9 +127,10 @@ To implement the receivers scheme a) and b), knowing the equivalent trasmitter i
 
 where we choose the smallest value we can of $\hat{t_0}$ that gives us a causal filter. 
 Then, by inspecting the overall impulse response before the sampler $q_r(n T/4) = (q_c * g_m)(n T/4)$, we find a proper value of $t_0$ that in this case is equal to $33T/4$ ($\Bar{t_0} = 33$). With this choice we are sampling the riceived signal $x(nT/4) = (r_c*gm)(nT/4)$ in the peak of $q_r$ in order to reach the best performances.
-Now we discuss the two configuration separately:
-\begin{itemize}
-\item[a)] to implement the Linear Equalizer we estmate the optimum coefficients of the filter $c$ through the relation:
+Now we discuss the two configuration separately.
+\subsection{Linear Equalizer}
+\label{sec:le}
+To implement the Linear Equalizer we estmate the optimum coefficients of the filter $c$ through the relation:
 \begin{align}
 \vec{c}_{opt}& = R^{-1} \vec{p}&
 \label{eq:c_opt}  
@@ -167,7 +168,9 @@ In conclusion we have set: D = 1, M1 = 3, $\Bar{t_0} = 33$. The coefficents of t
   \label{tab:c_le}
 \end{table}
 
-\item[b)] To implement the filter $c$ of the Decision Filter Equalizer we used 
+\subsection{Decision Feedback Equalizer}
+\label{sec:dfe}
+To implement the filter $c$ of the Decision Filter Equalizer we used 
 the same approach of the previous point (Equations (\ref{eq:c_opt}), (\ref{eq:p}) and (\ref{eq:R_le})). The only difference is 
 the computation of R that it's done using
 \begin{align}
@@ -209,26 +212,21 @@ M1 = 3, M2 = 2, D = 1, $\Bar{t_0} = 33$. The filters $\vec{c}_{opt}$ and $\vec{b
 \end{figure}
 
 
-\end{itemize}
-
-
-
 
 \section{Anti-aliasing filters}
-\begin{itemize}
-\item 
 
+\subsection{Sampling with period $T/2$}
 For the configuration c) we have usa a lowpass linear FIR filter of order 20 to build $gaa$, whose frequency response and impulse response are shown in Fig. \ref{plot:Gaa2} and Fig. \ref{plot:gaa2} respectively. 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.7\textwidth]{matlab/plot_gaa_freq}
-  \caption{Frequency response of $g_{aa}$ in dB (C @T/2)}
+  \includegraphics[width=0.6\textwidth]{matlab/plot_gaa_freq}
+  \caption{Frequency response of $g_{aa}$ in dB}
   \label{plot:Gaa2}
 \end{figure}
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.7\textwidth]{matlab/plot_gaa}
-  \caption{$g_{aa}$ impulse response (C @T/2)}
+  \includegraphics[width=0.6\textwidth]{matlab/plot_gaa}
+  \caption{$g_{aa}$ impulse response}
   \label{plot:gaa2}
 \end{figure}
 
@@ -236,36 +234,35 @@ For the configuration c) we have usa a lowpass linear FIR filter of order 20 to 
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.7\textwidth]{matlab/plot_psi_aa}
-  \caption{$\psi(kT)$ behaviour (AA @T/2) (C @T/2)}
+  \includegraphics[width=0.6\textwidth]{matlab/plot_psi_aa}
+  \caption{Sampled $\psi(kT)$ behaviour}
   \label{plot:psi_aa}
 \end{figure}
-Proceeding like in the previous points we inspected the impulse response before the sampler $q_r(n T/4) = (q_c * g_m)(n T/4)$ and we find that, to sample in the peak, we must choose $\Bar{t_0} = 20$, but in this case we sample every T/2. The design of the optimum filter $c$ it's done as in case b), with the through the equation (8), then we downsample the received signal by a factor $F_0 = 2$ to return at time T. Finally to build the $b$ filter we used the relation $b_i = - \psi_{2(D+i}$ {\color{red}that takes into account the fact that the filter $c$ works at T/2 but after the downsampler we have a simbol (and a postcursus of psi that needs to be cancelled) every T seconds}. In our tries we find the following settings as the best: M1 = 3, M2 = 2, D = 1, $\Bar{t_0} = 20$ and we obtained: $\vec{c}_{opt} = [0.0012, 0.0451, 0.2879]^T$ $\vec{b} = [-0.0518, -0.0086]^T$. The correspondent $\psi$ at time T is showed in Fig. \ref{plot:psi_aa}.
-\newpage
-\item
+Proceeding like in the previous points we inspected the impulse response before the sampler $q_r(n T/4) = (q_c * g_m)(n T/4)$ and we find that, to sample in the peak, we must choose $\Bar{t_0} = 20$, but in this case we sample every T/2. The design of the optimum filter $c$ it's done as in case b), through the equation (8), then we downsample the received signal by a factor $F_0 = 2$ to return at time T. Finally to build the $b$ filter we used the relation $b_i = - \psi_{2(D+i)}$ that takes into account the fact that the filter $c$ works at T/2 but after the downsampler we have a sample (and a postcursus of psi that needs to be cancelled) every T seconds. In our tries we find the following settings as the best: M1 = 3, M2 = 2, D = 1, $\Bar{t_0} = 20$ and we obtained: $\vec{c}_{opt} = [0.0012, 0.0451, 0.2879]^T$ $\vec{b} = [-0.0518, -0.0086]^T$. The correspondent $\psi$ at time T is showed in Fig. \ref{plot:psi_aa}.
+
+\subsection{Sampling with period $T$}
 To implement setting d) we find that using an order 10, linear FIR, lowpass filter as $g_{aa}$ we can get good performances. Also in this case the frequency response and impulse response are showed in Fig. \ref{plot:gaa_freq_T} and Fig. \ref{plot:gaa}. using a different size for the anti-aliasing filter we need to recompute the optimal value of $\Bar{t_0}$ and we find that it must be equal to 16. This configuration is similar to the previous one, but we don't have to account for the different timing between filters $c$ and $b$. So, as usual we used eq. (8) to estimate the $\vec{c}_{opt}$ and then we find $b_i = -\psi_{D+i}$. Making some tests with this setup we fiin the following results: M1 = 2, D = 1, M2 = 3, $\Bar{t_0} = 16$, $\vec{c}_{opt} = [0.0013, 0.0914]^T$, $\vec{b} = [-0.0095, -0.0019, -0.0004]^T$ . The behaviour of $\psi$ is showed in Fig. \ref{plot:gaa_psi_T}.
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.7\textwidth]{matlab/plot_gaa_freq_T}
+  \includegraphics[width=0.6\textwidth]{matlab/plot_gaa_freq_T}
   \caption{Frequency response of $g_{aa}$ in dB}
   \label{plot:gaa_freq_T}
 \end{figure}
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.7\textwidth]{matlab/plot_gaa_T}
+  \includegraphics[width=0.6\textwidth]{matlab/plot_gaa_T}
   \caption{$g_{aa}$ impulse response}
   \label{plot:gaa}
 \end{figure}
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.7\textwidth]{matlab/plot_psi_aa_T}
-  \caption{$\psi(kT)$ behaviour (AA @T)}
+  \includegraphics[width=0.6\textwidth]{matlab/plot_psi_aa_T}
+  \caption{$\psi(kT)$ behaviour}
   \label{plot:gaa_psi_T}
 \end{figure}
 
-\end{itemize}
 \section{Viterbi}
 \label{sec:viterbi}
 In the Viterbi receiver we use the same filter $g_M(nT/4) = q_c^*((\overline{t_0} - n)T/4)$ of
@@ -277,14 +274,14 @@ period $T$.
 
 Before applying the Viterbi algorithm we design a filter $c$ with the
 method based on the Wiener filter already used in
-section~\ref{sec:mf}:
+section~\ref{sec:dfe}:
 \begin{align}
   \vec{p}_p &= \sigma^2_ah^*_{D-p} \\
   R_{p,q} &= \sigma^2_a\left( \sum_{j=-N_1}^{N_2}h_jh^*_{j-(p-q)} - \sum_{j=1}^{M_2}h_{j+D-q}h^*_{j+D-p} \right) + r_{\tilde{w}}(p-q) \\
     \vec{c} &= R^{-1} \vec{p}
 \end{align}
 where $h = q_c * g_M$ and $r_{\tilde{w}}(n) = N_0 r_{g_M}(nT)$. The
-parameters that we choose are the same as in section \ref{sec:mf}:
+parameters that we choose are the same as in section \ref{sec:dfe}:
 $M1 = 3$, $M2 = 2$, $D=1$ and the filter coefficients are the same ones of
 Tab.~\ref{tab:dfe_c}.
 
