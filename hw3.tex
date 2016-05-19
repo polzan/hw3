@@ -68,9 +68,9 @@
 \maketitle
 \section{Transmitter}
 In the transmitter we generate the sequence of symbols $a_k$ by
-producing a uniformly distributed sequnce of bits twice as long and
+producing a uniformly distributed sequence of bits twice as long and
 mapping each pair of bits to a symbol of the QPSK constellation $
-\mathcal{A} = \{(1+j),(1-j),(-1-j),(-1+j)\}$. Then we upsample $a_k$
+\mathcal{A} = \{(1+j),(1-j),(-1-j),(-1+j)\}$. Then we up-sample $a_k$
 by a factor of 4 and filter it using the transfer function
 \begin{equation}
   Q_c(z) = \frac{\beta z^{-10}}{1 - \alpha z^{-1}}
@@ -112,7 +112,7 @@ $r_c(nT/4) = S_c(nT/4) + w_c(nT/4)$.
 
 \section{Matched filters}
 \label{sec:mf}
-To implement the receivers scheme a) and b), knowing the equivalent trasmitter impulse response $q_c$, we firstly designed the $g_m$ filter by usign the relation, 
+To implement the receivers scheme a) and b), knowing the equivalent transmitter impulse response $q_c$, we firstly designed the $g_m$ filter by using the relation, 
 \begin{align}
   g_m(n T/4) &= q_c^* (\hat{t_0}-n T/4) & \hat{t_0} = 33 T/4&
 \end{align}
@@ -125,11 +125,11 @@ To implement the receivers scheme a) and b), knowing the equivalent trasmitter i
 \end{figure}
 
 where we choose the smallest value we can of $\hat{t_0}$ that gives us a causal filter. 
-Then, by inspecting the overall impulse response before the sampler $q_r(n T/4) = (q_c * g_m)(n T/4)$, we find a proper value of $t_0$ that in this case is equal to $33T/4$ ($\Bar{t_0} = 33$). With this choice we are sampling the riceived signal $x(nT/4) = (r_c*gm)(nT/4)$ in the peak of $q_r$ in order to reach the best performances.
+Then, by inspecting the overall impulse response before the sampler $q_r(n T/4) = (q_c * g_m)(n T/4)$, we find a proper value of $t_0$ that in this case is equal to $33T/4$ ($\Bar{t_0} = 33$). With this choice we are sampling the received signal $x(nT/4) = (r_c*gm)(nT/4)$ in the peak of $q_r$ in order to reach the best performances.
 Now we discuss the two configuration separately.
 \subsection{Linear Equalizer}
 \label{sec:le}
-To implement the Linear Equalizer we estmate the optimum coefficients of the filter $c$ through the relation:
+To implement the Linear Equalizer we estimate the optimum coefficients of the filter $c$ through the relation:
 \begin{align}
 \vec{c}_{opt}& = R^{-1} \vec{p}&
 \label{eq:c_opt}  
@@ -139,13 +139,13 @@ in which
 &\vec{p} = \sigma_a^2 h_{D-p}^*&
 \label{eq:p}  
 \end{align}
-where $h$ is the overall impulse response $q_r$ sampled at $T$ and $\sigma_a^2$ is the power of the transmitted simbols. For the matrix $R$ the following relation holds in this case:
+where $h$ is the overall impulse response $q_r$ sampled at $T$ and $\sigma_a^2$ is the power of the transmitted symbols. For the matrix $R$ the following relation holds in this case:
 \begin{align}
  R_{p,q} &= \sigma^2_a \sum_{j=-N_1}^{N_2}h_jh^*_{j-(p-q)} + r_{\tilde{w}}(p-q) & p,q = 0,1,.....,M1-1&
   \label{eq:R_le}
 \end{align}
-in which $r_{\tilde{w}}(k) = N_0 r_{g_M}(k)$; with $r_{g_M}(k)$ the deterministic autocorrelation of $g_m$.
-The two parameters in this configuration are the delay D and the length of the  equalizer M1. By trying some configurations we find that a suitable value for D is 1 and for M1 is 3. If we increase more the value of M1 we don't have a significant improvement in the performances, so we decided to stop here. For $D\neq 1$ indeed the sistem starts to work significantly worse. With this settings we find the behaviour of the overall system impulse response $\psi(p) = \sum_{l=0}^{M1-1} c_l h_{p-l}$ showed in Fig.~\ref{plot:psi_le}. 
+in which $r_{\tilde{w}}(k) = N_0 r_{g_M}(k)$; with $r_{g_M}(k)$ the deterministic auto-correlation of $g_m$.
+The two parameters in this configuration are the delay D and the length of the  equalizer M1. By trying some configurations we find that a suitable value for D is 1 and for M1 is 3. If we increase more the value of M1 we don't have a significant improvement in the performances, so we decided to stop here. For $D\neq 1$ indeed the system starts to work significantly worse. With this settings we find the behaviour of the overall system impulse response $\psi(p) = \sum_{l=0}^{M1-1} c_l h_{p-l}$ showed in Fig.~\ref{plot:psi_le}. 
 
 \begin{figure}[h]
   \centering
@@ -154,7 +154,7 @@ The two parameters in this configuration are the delay D and the length of the  
   \label{plot:psi_le}
 \end{figure}
 
-In conclusion we have set: D = 1, M1 = 3, $\Bar{t_0} = 33$. The coefficents of the filter $c$ are reported in Tab.~\ref{tab:c_le}.
+In conclusion we have set: D = 1, M1 = 3, $\Bar{t_0} = 33$. The coefficients of the filter $c$ are reported in Tab.~\ref{tab:c_le}.
 
 \begin{table}
   \centering
@@ -163,7 +163,7 @@ In conclusion we have set: D = 1, M1 = 3, $\Bar{t_0} = 33$. The coefficents of t
     c_1 & 1,0601  \\
     c_2 & -0,2016
   \end{tabular}
-  \caption{Coefficietns of the filter $c$ of the LE}
+  \caption{Coefficients of the filter $c$ of the LE}
   \label{tab:c_le}
 \end{table}
 
@@ -180,7 +180,7 @@ The coefficients of the last filter are finally estimate using the relation
 \begin{align}
 b_i &= - \psi_{D+i}&  i &= 1,2,....,M2
 \end{align}
-Also in this case we have choose a value of D = 1 but now the first filter can be simpler because the postcursus are equilized by $b$. In fact, trying the various configuration we have found that M1 = 3 and M2 = 2 it's enough to our purposes. If we increase any of the two quantities the performance are quite the same, but, onthe other hand, if we decrease M1 or M2 the error probability starts to increase. We report the behaviour of $\psi$ in Fig. \ref{plot:psi_dfe_1} and the final configuration we used:
+Also in this case we have choose a value of D = 1 but now the first filter can be simpler because the postcursors are equalized by $b$. In fact, trying the various configuration we have found that M1 = 3 and M2 = 2 it's enough to our purposes. If we increase any of the two quantities the performance are quite the same, but, on the other hand, if we decrease M1 or M2 the error probability starts to increase. We report the behaviour of $\psi$ in Fig. \ref{plot:psi_dfe_1} and the final configuration we used:
 M1 = 3, M2 = 2, D = 1, $\Bar{t_0} = 33$. The filters $\vec{c}_{opt}$ and $\vec{b}$ are reported in Tab.~\ref{tab:c_dfe}~and~\ref{tab:b_dfe}. The match filter and the configuration of the sampler are the same of point a).
 
 \begin{table}
@@ -215,7 +215,7 @@ M1 = 3, M2 = 2, D = 1, $\Bar{t_0} = 33$. The filters $\vec{c}_{opt}$ and $\vec{b
 \section{Anti-aliasing filters}
 
 \subsection{Sampling with period $T/2$}
-For the configuration c) we have usa a lowpass linear FIR filter of order 20 to build $gaa$, whose frequency response and impulse response are shown in Fig. \ref{plot:Gaa2} and Fig. \ref{plot:gaa2} respectively. 
+For the configuration c) we have used a low-pass linear FIR filter of order 20 to build $gaa$, whose frequency response and impulse response are shown in Fig. \ref{plot:Gaa2} and Fig. \ref{plot:gaa2} respectively. 
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.6\textwidth]{matlab/plot_gaa_freq}
@@ -237,10 +237,10 @@ For the configuration c) we have usa a lowpass linear FIR filter of order 20 to 
   \caption{Sampled $\psi(kT)$ behaviour}
   \label{plot:psi_aa}
 \end{figure}
-Proceeding like in the previous points we inspected the impulse response before the sampler $q_r(n T/4) = (q_c * g_m)(n T/4)$ and we find that, to sample in the peak, we must choose $\Bar{t_0} = 20$, but in this case we sample every T/2. The design of the optimum filter $c$ it's done as in case b), through the equation (8), then we downsample the received signal by a factor $F_0 = 2$ to return at time T. Finally to build the $b$ filter we used the relation $b_i = - \psi_{2(D+i)}$ that takes into account the fact that the filter $c$ works at T/2 but after the downsampler we have a sample (and a postcursus of psi that needs to be cancelled) every T seconds. In our tries we find the following settings as the best: M1 = 3, M2 = 2, D = 1, $\Bar{t_0} = 20$ and we obtained: $\vec{c}_{opt} = [0.0012, 0.0451, 0.2879]^T$ $\vec{b} = [-0.0518, -0.0086]^T$. The correspondent $\psi$ at time T is showed in Fig. \ref{plot:psi_aa}.
+Proceeding like in the previous points we inspected the impulse response before the sampler $q_r(n T/4) = (q_c * g_m)(n T/4)$ and we find that, to sample in the peak, we must choose $\Bar{t_0} = 20$, but in this case we sample every T/2. The design of the optimum filter $c$ it's done as in case b), through the equation (8), then we down-sample the received signal by a factor $F_0 = 2$ to return at time T. Finally to build the $b$ filter we used the relation $b_i = - \psi_{2(D+i)}$ that takes into account the fact that the filter $c$ works at T/2 but after the down-sampler we have a sample (and a postcursors of psi that needs to be cancelled) every T seconds. In our tries we find the following settings as the best: M1 = 3, M2 = 2, D = 1, $\Bar{t_0} = 20$ and we obtained: $\vec{c}_{opt} = [0.0012, 0.0451, 0.2879]^T$ $\vec{b} = [-0.0518, -0.0086]^T$. The correspondent $\psi$ at time T is showed in Fig. \ref{plot:psi_aa}.
 
 \subsection{Sampling with period $T$}
-To implement setting d) we find that using an order 10, linear FIR, lowpass filter as $g_{aa}$ we can get good performances. Also in this case the frequency response and impulse response are showed in Fig. \ref{plot:gaa_freq_T} and Fig. \ref{plot:gaa}. using a different size for the anti-aliasing filter we need to recompute the optimal value of $\Bar{t_0}$ and we find that it must be equal to 16. This configuration is similar to the previous one, but we don't have to account for the different timing between filters $c$ and $b$. So, as usual we used eq. (8) to estimate the $\vec{c}_{opt}$ and then we find $b_i = -\psi_{D+i}$. Making some tests with this setup we fiin the following results: M1 = 2, D = 1, M2 = 3, $\Bar{t_0} = 16$, $\vec{c}_{opt} = [0.0013, 0.0914]^T$, $\vec{b} = [-0.0095, -0.0019, -0.0004]^T$ . The behaviour of $\psi$ is showed in Fig. \ref{plot:gaa_psi_T}.
+To implement setting d) we find that using an order 10, linear FIR, low-pass filter as $g_{aa}$ we can get good performances. Also in this case the frequency response and impulse response are showed in Fig. \ref{plot:gaa_freq_T} and Fig. \ref{plot:gaa}. using a different size for the anti-aliasing filter we need to recompute the optimal value of $\Bar{t_0}$ and we find that it must be equal to 16. This configuration is similar to the previous one, but we don't have to account for the different timing between filters $c$ and $b$. So, as usual we used eq. (8) to estimate the $\vec{c}_{opt}$ and then we find $b_i = -\psi_{D+i}$. Making some tests with this setup we find the following results: M1 = 2, D = 1, M2 = 3, $\Bar{t_0} = 16$, $\vec{c}_{opt} = [0.0013, 0.0914]^T$, $\vec{b} = [-0.0095, -0.0019, -0.0004]^T$ . The behaviour of $\psi$ is showed in Fig. \ref{plot:gaa_psi_T}.
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.6\textwidth]{matlab/plot_gaa_freq_T}
